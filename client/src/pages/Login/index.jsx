@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { GoogleLogin } from '@react-oauth/google'
 import { jwtDecode } from 'jwt-decode'
-import logo from '../assets/logo.png'  
+import logo from '../../assets/logo.png'
+
 
 
 export default function Login() {
@@ -25,13 +26,13 @@ export default function Login() {
     <div className="login-page">
       <div className="login-card">
         <div className="login-logo">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-            <rect x="2" y="2" width="9" height="9" rx="1.5" fill="#4285f4"/>
-            <rect x="13" y="2" width="9" height="9" rx="1.5" fill="#ea4335"/>
-            <rect x="2" y="13" width="9" height="9" rx="1.5" fill="#fbbc04"/>
-            <rect x="13" y="13" width="9" height="9" rx="1.5" fill="#34a853"/>
-          </svg>
-          <h1>Inegrity Checker</h1>
+          <img 
+            src={logo} 
+            alt="Integrity Checker Logo" 
+            width="108" 
+            height="108" 
+          />
+          <h1><b>Inegrity Checker</b></h1>
           <p>Sign in to continue</p>
         </div>
 

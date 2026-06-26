@@ -100,3 +100,13 @@
 }
 
 .modal-confirm:hover { background: #1557b0; }
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  font-size: 16px;
+  color: #5f6368;
+  text-align: center;
+}

@@ -1,5 +1,6 @@
 import './ClassCard.css'
 import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 
 const CARD_COLORS = [
   '#1e7e72', '#5c2d91', '#b06000', '#1a73e8',
@@ -9,13 +10,21 @@ const CARD_COLORS = [
 export default function ClassCard({ classData, index }) {
   const navigate = useNavigate()
   const color = CARD_COLORS[index % CARD_COLORS.length]
+  const [copied, setCopied] = useState(false)
+
+  const handleCopyCode = (e) => {
+    e.stopPropagation()
+    navigator.clipboard.writeText(classData.code)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
     <div className="class-card" onClick={() => navigate(`/class/${classData.id}`)}>
       <div className="card-header" style={{ background: color }}>
         <div className="card-info">
           <h3 className="card-title">{classData.name}</h3>
-          <p className="card-section">{classData.section}</p>
+          {classData.section && <p className="card-section">{classData.section}</p>}
           <p className="card-teacher">{classData.teacher}</p>
         </div>
         <div className="card-avatar">
@@ -23,7 +32,24 @@ export default function ClassCard({ classData, index }) {
         </div>
       </div>
 
-      <div className="card-body" />
+      <div className="card-body">
+        {classData.code && (
+          <div className="card-code" onClick={handleCopyCode} title="Click to copy code">
+            <span>Code: <strong style={{ color: '#000000' }}>{classData.code}</strong></span>
+            <span className="copy-hint">
+              {copied ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                </svg>
+              )}
+            </span>
+          </div>
+        )}
+      </div>
 
       <div className="card-footer">
         <button className="card-icon-btn" title="People" onClick={e => e.stopPropagation()}>
@@ -36,7 +62,11 @@ export default function ClassCard({ classData, index }) {
             <path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
           </svg>
         </button>
-        <button className="card-icon-btn" title="More" onClick={e => e.stopPropagation()}>
+        <button
+          className="card-icon-btn"
+          title="More"
+          onClick={e => e.stopPropagation()}
+        >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
           </svg>
