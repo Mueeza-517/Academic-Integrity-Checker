@@ -1,4 +1,5 @@
 import './Header.css'
+import logo from '../../assets/logo.png'
 import { useNavigate } from 'react-router-dom'
 
 export default function Header({ user, onCreateClass, onJoinClass }) {
@@ -8,13 +9,13 @@ export default function Header({ user, onCreateClass, onJoinClass }) {
     <header className="header">
       <div className="header-left">
         <div className="header-logo">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <rect x="3" y="3" width="7" height="7" rx="1" fill="#4285f4"/>
-            <rect x="14" y="3" width="7" height="7" rx="1" fill="#ea4335"/>
-            <rect x="3" y="14" width="7" height="7" rx="1" fill="#fbbc04"/>
-            <rect x="14" y="14" width="7" height="7" rx="1" fill="#34a853"/>
-          </svg>
-          <span className="header-title">Classroom</span>
+          <img 
+             src={logo} 
+             alt="Integrity Checker Logo" 
+             width="48" 
+             height="48" 
+            />
+          <span className="header-title"><b>Integrity Checker</b></span>
         </div>
       </div>
 
