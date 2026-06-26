@@ -1,6 +1,8 @@
 import './ClassCard.css'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCopy, faCheck, faUsers, faFolder, faEllipsisV } from '@fortawesome/free-solid-svg-icons'
 
 const CARD_COLORS = [
   '#1e7e72', '#5c2d91', '#b06000', '#1a73e8',
@@ -35,17 +37,9 @@ export default function ClassCard({ classData, index }) {
       <div className="card-body">
         {classData.code && (
           <div className="card-code" onClick={handleCopyCode} title="Click to copy code">
-            <span>Code: <strong style={{ color: '#000000' }}>{classData.code}</strong></span>
+            <span>Code: {classData.code}</span>
             <span className="copy-hint">
-              {copied ? (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
-                </svg>
-              ) : (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                </svg>
-              )}
+              <FontAwesomeIcon icon={copied ? faCheck : faCopy} className="copy-icon"/>
             </span>
           </div>
         )}
@@ -53,23 +47,13 @@ export default function ClassCard({ classData, index }) {
 
       <div className="card-footer">
         <button className="card-icon-btn" title="People" onClick={e => e.stopPropagation()}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
-          </svg>
+          <FontAwesomeIcon icon={faUsers} />
         </button>
         <button className="card-icon-btn" title="Folder" onClick={e => e.stopPropagation()}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
-          </svg>
+          <FontAwesomeIcon icon={faFolder} />
         </button>
-        <button
-          className="card-icon-btn"
-          title="More"
-          onClick={e => e.stopPropagation()}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-          </svg>
+        <button className="card-icon-btn" title="More" onClick={e => e.stopPropagation()}>
+          <FontAwesomeIcon icon={faEllipsisV} />
         </button>
       </div>
     </div>
