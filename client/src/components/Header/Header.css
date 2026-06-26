@@ -62,3 +62,21 @@
   font-weight: 500;
   cursor: pointer;
 }
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-email {
+  font-size: 13px;
+  color: #5f6368;
+}
+
+.header-avatar-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}

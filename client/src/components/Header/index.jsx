@@ -19,24 +19,28 @@ export default function Header({ user, onCreateClass, onJoinClass }) {
       </div>
 
       <div className="header-right">
-        {user?.role === 'teacher' && (
-          <button className="header-btn" onClick={onCreateClass} title="Create class">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-            </svg>
-          </button>
-        )}
-        {user?.role === 'student' && (
-          <button className="header-btn" onClick={onJoinClass} title="Join class">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-            </svg>
-          </button>
-        )}
-        <div className="header-avatar">
-          {user?.name?.charAt(0).toUpperCase() || 'U'}
-        </div>
-      </div>
+  {user?.role === 'teacher' && (
+    <button className="header-btn" onClick={onCreateClass} title="Create class">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+      </svg>
+    </button>
+  )}
+  {user?.role === 'student' && (
+    <button className="header-btn" onClick={onJoinClass} title="Join class">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+      </svg>
+    </button>
+  )}
+  <div className="header-user">
+    <span className="header-email">{user?.email}</span>
+    {user?.picture
+      ? <img src={user.picture} className="header-avatar-img" alt="profile" />
+      : <div className="header-avatar">{user?.name?.charAt(0).toUpperCase() || 'U'}</div>
+    }
+  </div>
+</div>
     </header>
   )
 }
