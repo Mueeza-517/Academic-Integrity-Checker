@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../../components/Header'
+import API from '../../api'
 import './JoinClass.css'
 
 export default function JoinClass() {
@@ -8,54 +9,42 @@ export default function JoinClass() {
   const [user, setUser] = useState(null)
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const stored = localStorage.getItem('user')
-    if (!stored) { navigate('/'); return }
+    const token = localStorage.getItem('token')
+    if (!stored || !token) { navigate('/'); return }
     setUser(JSON.parse(stored))
   }, [])
 
-  const handleJoin = () => {
+  const handleJoin = async () => {
     if (!code.trim()) return setError('Please enter a class code')
-
-    const classes = JSON.parse(localStorage.getItem('classes') || '[]')
-    const found = classes.find(c => c.code === code.toUpperCase())
-
-    if (!found) return setError('Invalid class code. Please check and try again.')
-
-    // Block teacher from joining their own class as student
-    if (found.teacherEmail === user.email) {
-      return setError('You cannot join your own class as a student.')
+    try {
+      setLoading(true)
+      setError('')
+      await API.post('/classes/join', { code })
+      navigate('/home')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to join class.')
+    } finally {
+      setLoading(false)
     }
+  }
 
-    // Add student to class
-    const updatedClasses = classes.map(c => {
-      if (c.code !== code.toUpperCase()) return c
-      const alreadyJoined = c.students?.includes(user.email)
-      if (alreadyJoined) return c
-      return { ...c, students: [...(c.students || []), user.email] }
-    })
-    localStorage.setItem('classes', JSON.stringify(updatedClasses))
-
-    // Save to student's joined classes
-    const myClasses = JSON.parse(localStorage.getItem(`myClasses_${user.email}`) || '[]')
-    const alreadyIn = myClasses.find(c => c.code === code.toUpperCase())
-    if (alreadyIn) return setError('You have already joined this class.')
-
-    myClasses.push(found)
-    localStorage.setItem(`myClasses_${user.email}`, JSON.stringify(myClasses))
-
-    navigate('/home')
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    navigate('/')
   }
 
   return (
     <div className="joinclass-page">
-      <Header user={user} />
+      <Header user={user} onLogout={handleLogout} />
       <div className="joinclass-container">
         <div className="joinclass-card">
           <h2>Join a class</h2>
           <p>Ask your teacher for the class code, then enter it here.</p>
-
           <input
             className="joinclass-input"
             placeholder="Class code (e.g. AB12CD)"
@@ -63,12 +52,12 @@ export default function JoinClass() {
             onChange={e => { setCode(e.target.value.toUpperCase()); setError('') }}
             maxLength={8}
           />
-
           {error && <span className="joinclass-error">{error}</span>}
-
           <div className="joinclass-actions">
             <button className="joinclass-cancel" onClick={() => navigate('/home')}>Cancel</button>
-            <button className="joinclass-confirm" onClick={handleJoin}>Join</button>
+            <button className="joinclass-confirm" onClick={handleJoin} disabled={loading}>
+              {loading ? 'Joining...' : 'Join'}
+            </button>
           </div>
         </div>
       </div>

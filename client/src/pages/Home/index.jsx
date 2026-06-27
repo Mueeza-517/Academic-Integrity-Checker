@@ -2,7 +2,13 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../../components/Header'
 import ClassCard from '../../components/ClassCard'
+import API from '../../api'
 import './Home.css'
+
+const CARD_COLORS = [
+  '#1e7e72', '#5c2d91', '#b06000', '#1a73e8',
+  '#c5221f', '#137333', '#7b5ea7', '#d93025'
+]
 
 export default function Home() {
   const navigate = useNavigate()
@@ -11,83 +17,50 @@ export default function Home() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [newClassName, setNewClassName] = useState('')
   const [newSection, setNewSection] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     const stored = localStorage.getItem('user')
-    if (!stored) { navigate('/'); return }
-    const u = JSON.parse(stored)
-    setUser(u)
-    loadClasses(u)
+    const token = localStorage.getItem('token')
+    if (!stored || !token) { navigate('/'); return }
+    setUser(JSON.parse(stored))
+    fetchClasses()
   }, [])
 
-  const loadClasses = (u) => {
-    if (u.role === 'teacher') {
-      const all = JSON.parse(localStorage.getItem('classes') || '[]')
-      setClasses(all.filter(c => c.teacherEmail === u.email))
-    } else {
-      const myClasses = JSON.parse(localStorage.getItem(`myClasses_${u.email}`) || '[]')
-      setClasses(myClasses)
+  const fetchClasses = async () => {
+    try {
+      setLoading(true)
+      const { data } = await API.get('/classes/my')
+      setClasses(data)
+    } catch (err) {
+      setError('Failed to load classes.')
+    } finally {
+      setLoading(false)
     }
   }
 
-  const generateUniqueCode = () => {
-    const classes = JSON.parse(localStorage.getItem('classes') || '[]')
-    let code
-    do {
-      code = Math.random().toString(36).substring(2, 8).toUpperCase()
-    } while (classes.find(c => c.code === code))
-    return code
-  }
-
-  const handleCreateClass = () => {
+  const handleCreateClass = async () => {
     if (!newClassName.trim()) return
-    const allClasses = JSON.parse(localStorage.getItem('classes') || '[]')
-    const newClass = {
-      id: Date.now().toString(),
-      name: newClassName,
-      section: newSection,
-      teacher: user?.name,
-      teacherEmail: user?.email,
-      code: generateUniqueCode(),
-      students: [],
-      assignments: []
+    try {
+      const { data } = await API.post('/classes', {
+        name: newClassName,
+        section: newSection,
+        color: CARD_COLORS[classes.length % CARD_COLORS.length]
+      })
+      setClasses(prev => [data, ...prev])
+      setShowCreateModal(false)
+      setNewClassName('')
+      setNewSection('')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to create class.')
     }
-    const updated = [newClass, ...allClasses]
-    localStorage.setItem('classes', JSON.stringify(updated))
-    setClasses(updated.filter(c => c.teacherEmail === user?.email))
-    setShowCreateModal(false)
-    setNewClassName('')
-    setNewSection('')
   }
 
-  // Handle deleting a class (Teacher only)
-  const handleDeleteClass = (classId) => {
-    // Remove from localStorage
-    const allClasses = JSON.parse(localStorage.getItem('classes') || '[]')
-    const updatedClasses = allClasses.filter(c => c.id !== classId)
-    localStorage.setItem('classes', JSON.stringify(updatedClasses))
-    
-    // Also remove from all students' enrolled classes
-    // Get all users from localStorage
-    const allUsers = JSON.parse(localStorage.getItem('users') || '[]')
-    allUsers.forEach(userData => {
-      if (userData.role === 'student') {
-        const studentClasses = JSON.parse(localStorage.getItem(`myClasses_${userData.email}`) || '[]')
-        const updatedStudentClasses = studentClasses.filter(c => c.id !== classId)
-        localStorage.setItem(`myClasses_${userData.email}`, JSON.stringify(updatedStudentClasses))
-      }
-    })
-    
-    // Update state
-    setClasses(classes.filter(c => c.id !== classId))
-  }
-
-  // Handle unenrolling from a class (Student only)
-  const handleUnenroll = (classId) => {
-    const studentClasses = JSON.parse(localStorage.getItem(`myClasses_${user.email}`) || '[]')
-    const updatedClasses = studentClasses.filter(c => c.id !== classId)
-    localStorage.setItem(`myClasses_${user.email}`, JSON.stringify(updatedClasses))
-    setClasses(updatedClasses)
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    navigate('/')
   }
 
   return (
@@ -96,29 +69,30 @@ export default function Home() {
         user={user}
         onCreateClass={() => setShowCreateModal(true)}
         onJoinClass={() => navigate('/join')}
+        onLogout={handleLogout}
       />
 
       <main className="home-main">
-        {classes.length === 0 ? (
+        {loading ? (
+          <div className="empty-state"><p>Loading classes...</p></div>
+        ) : error ? (
+          <div className="empty-state"><p>{error}</p></div>
+        ) : classes.length === 0 ? (
           <div className="empty-state">
-            <p>{user?.role === 'teacher' ? 'No classes yet. Create your first class!' : 'No classes yet. Join a class using a code from your teacher!'}</p>
+            <p>{user?.role === 'teacher'
+              ? 'No classes yet. Create your first class!'
+              : 'No classes yet. Join a class using a code from your teacher!'}
+            </p>
           </div>
         ) : (
           <div className="cards-grid">
             {classes.map((cls) => (
-              <ClassCard 
-                key={cls.id} 
-                classData={cls} 
-                userRole={user?.role}
-                onDeleteClass={handleDeleteClass}
-                onUnenrollClass={handleUnenroll}
-              />
+              <ClassCard key={cls._id} classData={cls} />
             ))}
           </div>
         )}
       </main>
 
-      {/* Create Class Modal */}
       {showCreateModal && (
         <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>

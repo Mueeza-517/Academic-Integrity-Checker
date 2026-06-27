@@ -59,7 +59,7 @@ export default function ClassCard({ classData, userRole, onDeleteClass, onUnenro
   }
 
   return (
-    <div className="class-card" onClick={() => navigate(`/class/${classData.id}`)}>
+    <div className="class-card" onClick={() => navigate(`/class/${classData._id}`)}>
       <div className="card-header" style={{ background: color }}>
         <div className="card-info">
           <h3 className="card-title">{classData.name}</h3>

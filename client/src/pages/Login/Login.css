@@ -112,3 +112,19 @@
 .login-card > :last-child {
   margin-bottom: 8px;
 }
+
+.login-error {
+  font-size: 13px;
+  color: #c5221f;
+  text-align: center;
+  background: #fce8e6;
+  padding: 8px 12px;
+  border-radius: 6px;
+  width: 100%;
+}
+
+.login-loading {
+  font-size: 14px;
+  color: #5f6368;
+  text-align: center;
+}
