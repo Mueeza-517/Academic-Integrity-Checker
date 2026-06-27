@@ -17,9 +17,16 @@ export default function JoinClass() {
 
   const handleJoin = () => {
     if (!code.trim()) return setError('Please enter a class code')
+
     const classes = JSON.parse(localStorage.getItem('classes') || '[]')
     const found = classes.find(c => c.code === code.toUpperCase())
+
     if (!found) return setError('Invalid class code. Please check and try again.')
+
+    // Block teacher from joining their own class as student
+    if (found.teacherEmail === user.email) {
+      return setError('You cannot join your own class as a student.')
+    }
 
     // Add student to class
     const updatedClasses = classes.map(c => {
@@ -33,10 +40,10 @@ export default function JoinClass() {
     // Save to student's joined classes
     const myClasses = JSON.parse(localStorage.getItem(`myClasses_${user.email}`) || '[]')
     const alreadyIn = myClasses.find(c => c.code === code.toUpperCase())
-    if (!alreadyIn) {
-      myClasses.push(found)
-      localStorage.setItem(`myClasses_${user.email}`, JSON.stringify(myClasses))
-    }
+    if (alreadyIn) return setError('You have already joined this class.')
+
+    myClasses.push(found)
+    localStorage.setItem(`myClasses_${user.email}`, JSON.stringify(myClasses))
 
     navigate('/home')
   }

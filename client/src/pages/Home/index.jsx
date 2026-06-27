@@ -17,7 +17,10 @@ export default function Home() {
     if (!stored) { navigate('/'); return }
     const u = JSON.parse(stored)
     setUser(u)
+    loadClasses(u)
+  }, [])
 
+  const loadClasses = (u) => {
     if (u.role === 'teacher') {
       const all = JSON.parse(localStorage.getItem('classes') || '[]')
       setClasses(all.filter(c => c.teacherEmail === u.email))
@@ -25,7 +28,7 @@ export default function Home() {
       const myClasses = JSON.parse(localStorage.getItem(`myClasses_${u.email}`) || '[]')
       setClasses(myClasses)
     }
-  }, [])
+  }
 
   const generateUniqueCode = () => {
     const classes = JSON.parse(localStorage.getItem('classes') || '[]')
@@ -57,6 +60,36 @@ export default function Home() {
     setNewSection('')
   }
 
+  // Handle deleting a class (Teacher only)
+  const handleDeleteClass = (classId) => {
+    // Remove from localStorage
+    const allClasses = JSON.parse(localStorage.getItem('classes') || '[]')
+    const updatedClasses = allClasses.filter(c => c.id !== classId)
+    localStorage.setItem('classes', JSON.stringify(updatedClasses))
+    
+    // Also remove from all students' enrolled classes
+    // Get all users from localStorage
+    const allUsers = JSON.parse(localStorage.getItem('users') || '[]')
+    allUsers.forEach(userData => {
+      if (userData.role === 'student') {
+        const studentClasses = JSON.parse(localStorage.getItem(`myClasses_${userData.email}`) || '[]')
+        const updatedStudentClasses = studentClasses.filter(c => c.id !== classId)
+        localStorage.setItem(`myClasses_${userData.email}`, JSON.stringify(updatedStudentClasses))
+      }
+    })
+    
+    // Update state
+    setClasses(classes.filter(c => c.id !== classId))
+  }
+
+  // Handle unenrolling from a class (Student only)
+  const handleUnenroll = (classId) => {
+    const studentClasses = JSON.parse(localStorage.getItem(`myClasses_${user.email}`) || '[]')
+    const updatedClasses = studentClasses.filter(c => c.id !== classId)
+    localStorage.setItem(`myClasses_${user.email}`, JSON.stringify(updatedClasses))
+    setClasses(updatedClasses)
+  }
+
   return (
     <div className="home-page">
       <Header
@@ -72,8 +105,14 @@ export default function Home() {
           </div>
         ) : (
           <div className="cards-grid">
-            {classes.map((cls, i) => (
-              <ClassCard key={cls.id} classData={cls} index={i} />
+            {classes.map((cls) => (
+              <ClassCard 
+                key={cls.id} 
+                classData={cls} 
+                userRole={user?.role}
+                onDeleteClass={handleDeleteClass}
+                onUnenrollClass={handleUnenroll}
+              />
             ))}
           </div>
         )}

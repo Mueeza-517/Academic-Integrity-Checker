@@ -2,11 +2,12 @@
   background: #fff;
   border-radius: 8px;
   border: 1px solid #e0e0e0;
-  overflow: hidden;
+  overflow: visible;
   cursor: pointer;
   transition: box-shadow 0.2s;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .class-card:hover {
@@ -20,12 +21,15 @@
   justify-content: space-between;
   align-items: flex-start;
   position: relative;
+  border-radius: 8px 8px 0 0;
 }
 
 .card-info {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  flex: 1;
+  min-width: 0;
 }
 
 .card-title {
@@ -99,14 +103,20 @@
 .copy-hint {
   font-size: 12px;
   color: #1a73e8;
+  display: flex;
+  align-items: center;
 }
 
 .card-footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding: 4px 8px;
+  padding: 8px 12px;
   gap: 4px;
+  position: relative;
+  background: white;
+  border-radius: 0 0 8px 8px;
+  min-height: 52px;
 }
 
 .card-icon-btn {
@@ -119,12 +129,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #5f6368;
+  color: #000000;
   transition: background 0.2s;
+  padding: 0;
 }
 
 .card-icon-btn:hover {
   background: #f1f3f4;
+}
+
+.card-icon-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
 .copy-icon {
@@ -137,6 +153,92 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #5f6368;
+  color: #000000;
   transition: background 0.2s;
+}
+
+/* Dropdown container */
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Dropdown menu */
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background-color: white;
+  min-width: 155px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  padding: 4px 0;
+  z-index: 9999;
+  margin-top: 0;
+  animation: slideDown 0.2s ease;
+  border: 1px solid #e8eaed;
+  overflow: visible;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+  color: #000000;
+  transition: background-color 0.2s;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.dropdown-item:hover {
+  background-color: #f5f5f5;
+}
+
+.dropdown-item.delete,
+.dropdown-item.unenroll {
+  color: #000000;
+}
+
+.dropdown-item.delete:hover,
+.dropdown-item.unenroll:hover {
+  background-color: #f5f5f5;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px 12px;
+  gap: 4px;
+  position: relative;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .dropdown-menu {
+    min-width: 150px;
+    right: -8px;
+  }
+  
+  .card-title {
+    max-width: 120px;
+    font-size: 16px;
+  }
 }
