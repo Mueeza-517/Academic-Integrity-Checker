@@ -38,9 +38,24 @@ export default function JoinClass() {
     navigate('/')
   }
 
+  const handleRoleSwitch = async () => {
+    try {
+      const newRole = user.role === 'teacher' ? 'student' : 'teacher'
+      const { data } = await API.post('/auth/google-switch', {
+        email: user.email,
+        role: newRole
+      })
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      navigate('/home')
+    } catch (err) {
+      alert('Failed to switch role.')
+    }
+  }
+
   return (
     <div className="joinclass-page">
-      <Header user={user} onLogout={handleLogout} />
+      <Header user={user} onLogout={handleLogout} onRoleSwitch={handleRoleSwitch} />
       <div className="joinclass-container">
         <div className="joinclass-card">
           <h2>Join a class</h2>

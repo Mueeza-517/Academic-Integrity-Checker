@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../../components/Header'
 import ClassCard from '../../components/ClassCard'
+import ConfirmModal from '../../components/ConfirmModal'
 import API from '../../api'
 import './Home.css'
 
@@ -19,6 +20,7 @@ export default function Home() {
   const [newSection, setNewSection] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [confirm, setConfirm] = useState(null)
 
   useEffect(() => {
     const stored = localStorage.getItem('user')
@@ -43,12 +45,14 @@ export default function Home() {
   const handleCreateClass = async () => {
     if (!newClassName.trim()) return
     try {
+      const totalCount = await API.get('/classes/my')
+      const colorIndex = totalCount.data.length % CARD_COLORS.length
       const { data } = await API.post('/classes', {
         name: newClassName,
         section: newSection,
-        color: CARD_COLORS[classes.length % CARD_COLORS.length]
+        color: CARD_COLORS[colorIndex]
       })
-      setClasses(prev => [data, ...prev])
+      setClasses(prev => [...prev, data])
       setShowCreateModal(false)
       setNewClassName('')
       setNewSection('')
@@ -63,6 +67,59 @@ export default function Home() {
     navigate('/')
   }
 
+  const handleRoleSwitch = async () => {
+    try {
+      const newRole = user.role === 'teacher' ? 'student' : 'teacher'
+      const { data } = await API.post('/auth/google-switch', {
+        email: user.email,
+        role: newRole
+      })
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      setUser(data.user)
+      setClasses([])
+      fetchClasses()
+    } catch (err) {
+      alert('Failed to switch role.')
+    }
+  }
+
+  const handleDeleteClass = (classId) => {
+    setConfirm({
+      title: 'Delete Class',
+      message: 'Are you sure you want to delete this class? All assignments and submissions will be lost.',
+      confirmText: 'Delete',
+      confirmColor: '#c5221f',
+      onConfirm: async () => {
+        try {
+          await API.delete(`/classes/${classId}`)
+          setClasses(prev => prev.filter(c => c._id !== classId))
+        } catch (err) {
+          alert('Failed to delete class.')
+        }
+        setConfirm(null)
+      }
+    })
+  }
+
+  const handleUnenroll = (classId) => {
+    setConfirm({
+      title: 'Unenroll from Class',
+      message: 'Are you sure you want to unenroll from this class?',
+      confirmText: 'Unenroll',
+      confirmColor: '#e65100',
+      onConfirm: async () => {
+        try {
+          await API.post(`/classes/${classId}/unenroll`)
+          setClasses(prev => prev.filter(c => c._id !== classId))
+        } catch (err) {
+          alert('Failed to unenroll.')
+        }
+        setConfirm(null)
+      }
+    })
+  }
+
   return (
     <div className="home-page">
       <Header
@@ -70,6 +127,7 @@ export default function Home() {
         onCreateClass={() => setShowCreateModal(true)}
         onJoinClass={() => navigate('/join')}
         onLogout={handleLogout}
+        onRoleSwitch={handleRoleSwitch}
       />
 
       <main className="home-main">
@@ -87,12 +145,31 @@ export default function Home() {
         ) : (
           <div className="cards-grid">
             {classes.map((cls) => (
-              <ClassCard key={cls._id} classData={cls} />
+              <ClassCard
+                key={cls._id}
+                classData={cls}
+                user={user}
+                onDelete={handleDeleteClass}
+                onUnenroll={handleUnenroll}
+              />
             ))}
           </div>
         )}
       </main>
 
+      {/* Confirm Modal */}
+      {confirm && (
+        <ConfirmModal
+          title={confirm.title}
+          message={confirm.message}
+          confirmText={confirm.confirmText}
+          confirmColor={confirm.confirmColor}
+          onConfirm={confirm.onConfirm}
+          onCancel={() => setConfirm(null)}
+        />
+      )}
+
+      {/* Create Class Modal */}
       {showCreateModal && (
         <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>

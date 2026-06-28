@@ -4,19 +4,12 @@ import { useState, useRef, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCopy, faCheck, faUsers, faFolder, faEllipsisV, faTrash, faRightFromBracket } from '@fortawesome/free-solid-svg-icons'
 
-const CARD_COLORS = [
-  '#1e7e72', '#5c2d91', '#b06000', '#1a73e8',
-  '#c5221f', '#137333', '#7b5ea7', '#d93025'
-]
-
-export default function ClassCard({ classData, userRole, onDeleteClass, onUnenrollClass }) {
+export default function ClassCard({ classData, user, onDelete, onUnenroll }) {
   const navigate = useNavigate()
-  const color = CARD_COLORS[classData.id ? parseInt(classData.id) % CARD_COLORS.length : 0]
   const [copied, setCopied] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef(null)
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -40,27 +33,26 @@ export default function ClassCard({ classData, userRole, onDeleteClass, onUnenro
     setShowDropdown(!showDropdown)
   }
 
-  const handleDeleteClass = (e) => {
+  const handleDeleteClick = (e) => {
     e.stopPropagation()
     e.preventDefault()
-    if (window.confirm(`Are you sure you want to delete "${classData.name}"? This action cannot be undone.`)) {
-      onDeleteClass(classData.id)
-    }
     setShowDropdown(false)
+    onDelete(classData._id)
   }
 
-  const handleUnenroll = (e) => {
+  const handleUnenrollClick = (e) => {
     e.stopPropagation()
     e.preventDefault()
-    if (window.confirm(`Are you sure you want to unenroll from "${classData.name}"?`)) {
-      onUnenrollClass(classData.id)
-    }
     setShowDropdown(false)
+    onUnenroll(classData._id)
   }
 
   return (
     <div className="class-card" onClick={() => navigate(`/class/${classData._id}`)}>
-      <div className="card-header" style={{ background: color }}>
+      <div
+        className="card-header"
+        style={{ background: classData.color || '#1a73e8' }}
+      >
         <div className="card-info">
           <h3 className="card-title">{classData.name}</h3>
           {classData.section && <p className="card-section">{classData.section}</p>}
@@ -72,11 +64,12 @@ export default function ClassCard({ classData, userRole, onDeleteClass, onUnenro
       </div>
 
       <div className="card-body">
-        {classData.code && (
+        {classData.code && user?.role === 'teacher' && (
           <div className="card-code" onClick={handleCopyCode} title="Click to copy code">
-            <span>Code: {classData.code}</span>
+            <span>Code: <strong>{classData.code}</strong></span>
             <span className="copy-hint">
-              <FontAwesomeIcon icon={copied ? faCheck : faCopy} className="copy-icon" style={{ color: '#000000' }} />
+              <FontAwesomeIcon icon={copied ? faCheck : faCopy} className="copy-icon" />
+              {copied ? ' Copied!' : ' Copy'}
             </span>
           </div>
         )}
@@ -84,29 +77,27 @@ export default function ClassCard({ classData, userRole, onDeleteClass, onUnenro
 
       <div className="card-footer">
         <button className="card-icon-btn" title="People" onClick={e => e.stopPropagation()}>
-          <FontAwesomeIcon icon={faUsers} style={{ color: '#000000' }} />
+          <FontAwesomeIcon icon={faUsers} />
         </button>
         <button className="card-icon-btn" title="Folder" onClick={e => e.stopPropagation()}>
-          <FontAwesomeIcon icon={faFolder} style={{ color: '#000000' }} />
+          <FontAwesomeIcon icon={faFolder} />
         </button>
+
         <div className="dropdown-container" ref={dropdownRef}>
-          <button 
-            className="card-icon-btn" 
-            title="More" 
-            onClick={handleToggleDropdown}
-          >
-            <FontAwesomeIcon icon={faEllipsisV} style={{ color: '#000000' }} />
+          <button className="card-icon-btn" title="More" onClick={handleToggleDropdown}>
+            <FontAwesomeIcon icon={faEllipsisV} />
           </button>
+
           {showDropdown && (
             <div className="dropdown-menu">
-              {userRole === 'teacher' ? (
-                <button className="dropdown-item" onClick={handleDeleteClass}>
-                  <FontAwesomeIcon icon={faTrash} style={{ marginRight: '10px', color: '#000000' }} />
-                  Delete Class
+              {user?.role === 'teacher' ? (
+                <button className="dropdown-item delete-item" onClick={handleDeleteClick}>
+                  <FontAwesomeIcon icon={faTrash} />
+                  Delete class
                 </button>
               ) : (
-                <button className="dropdown-item" onClick={handleUnenroll}>
-                  <FontAwesomeIcon icon={faRightFromBracket} style={{ marginRight: '10px', color: '#000000' }} />
+                <button className="dropdown-item unenroll-item" onClick={handleUnenrollClick}>
+                  <FontAwesomeIcon icon={faRightFromBracket} />
                   Unenroll
                 </button>
               )}

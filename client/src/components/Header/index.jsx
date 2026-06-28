@@ -2,8 +2,9 @@ import './Header.css'
 import logo from '../../assets/logo.png'
 import { useNavigate } from 'react-router-dom'
 import { useState, useRef, useEffect } from 'react'
+import API from '../../api'
 
-export default function Header({ user, onCreateClass, onJoinClass, onLogout }) {
+export default function Header({ user, onCreateClass, onJoinClass, onLogout, onRoleSwitch }) {
   const navigate = useNavigate()
   const [showMenu, setShowMenu] = useState(false)
   const menuRef = useRef()
@@ -65,8 +66,17 @@ export default function Header({ user, onCreateClass, onJoinClass, onLogout }) {
               <div className="avatar-menu-info">
                 <p className="avatar-menu-name">{user?.name}</p>
                 <p className="avatar-menu-email">{user?.email}</p>
-                <p className="avatar-menu-role">{user?.role}</p>
+                <div className="avatar-menu-role-badge">
+                  Currently: <strong>{user?.role}</strong>
+                </div>
               </div>
+              <div className="avatar-menu-divider" />
+              <button className="avatar-menu-switch" onClick={() => { onRoleSwitch(); setShowMenu(false) }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+                Switch to {user?.role === 'teacher' ? 'Student' : 'Teacher'}
+              </button>
               <div className="avatar-menu-divider" />
               <button className="avatar-menu-logout" onClick={onLogout}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">

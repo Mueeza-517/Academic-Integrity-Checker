@@ -1,5 +1,6 @@
 const router = require('express').Router()
 const Class = require('../models/Class')
+const Assignment = require('../models/Assignment')
 const auth = require('../middleware/auth')
 
 // Generate unique class code
@@ -17,7 +18,7 @@ router.post('/', auth, async (req, res) => {
     if (req.user.role !== 'teacher') {
       return res.status(403).json({ message: 'Only teachers can create classes' })
     }
-    const { name, section, bannerImage, color } = req.body
+    const { name, section, color } = req.body
     const code = await generateCode()
     const newClass = new Class({
       name,
@@ -25,7 +26,6 @@ router.post('/', auth, async (req, res) => {
       teacher: req.user.name,
       teacherEmail: req.user.email,
       code,
-      bannerImage: bannerImage || '',
       color: color || '#1a73e8'
     })
     await newClass.save()
@@ -35,7 +35,7 @@ router.post('/', auth, async (req, res) => {
   }
 })
 
-// Get all classes for teacher
+// Get all classes for teacher or student
 router.get('/my', auth, async (req, res) => {
   try {
     let classes
@@ -83,6 +83,35 @@ router.get('/:id', auth, async (req, res) => {
     const cls = await Class.findById(req.params.id)
     if (!cls) return res.status(404).json({ message: 'Class not found' })
     res.json(cls)
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message })
+  }
+})
+
+// Delete class (teacher only)
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    const cls = await Class.findById(req.params.id)
+    if (!cls) return res.status(404).json({ message: 'Class not found' })
+    if (cls.teacherEmail !== req.user.email) {
+      return res.status(403).json({ message: 'Not authorized to delete this class' })
+    }
+    await Class.findByIdAndDelete(req.params.id)
+    await Assignment.deleteMany({ classId: req.params.id })
+    res.json({ message: 'Class deleted successfully' })
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message })
+  }
+})
+
+// Unenroll student
+router.post('/:id/unenroll', auth, async (req, res) => {
+  try {
+    const cls = await Class.findById(req.params.id)
+    if (!cls) return res.status(404).json({ message: 'Class not found' })
+    cls.students = cls.students.filter(s => s.email !== req.user.email)
+    await cls.save()
+    res.json({ message: 'Unenrolled successfully' })
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message })
   }

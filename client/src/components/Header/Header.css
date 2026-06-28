@@ -160,3 +160,31 @@
   font-size: 12px;
   color: #5f6368;
 }
+
+.avatar-menu-role-badge {
+  font-size: 12px;
+  color: #5f6368;
+  margin-top: 4px;
+}
+
+.avatar-menu-role-badge strong {
+  color: #1a73e8;
+  text-transform: capitalize;
+}
+
+.avatar-menu-switch {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #137333;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+
+.avatar-menu-switch:hover { background: #e6f4ea; }
