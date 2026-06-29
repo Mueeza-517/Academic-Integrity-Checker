@@ -42,8 +42,8 @@ export default function Login() {
           <img
             src={logo}
             alt="Integrity Checker Logo"
-            width="108"
-            height="108"
+            width="118"
+            height="78"
           />
           <h1><b>Integrity Checker</b></h1>
           <p>Sign in to continue</p>

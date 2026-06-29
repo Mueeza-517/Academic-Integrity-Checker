@@ -23,7 +23,7 @@ export default function Header({ user, onCreateClass, onJoinClass, onLogout, onR
     <header className="header">
       <div className="header-left">
         <div className="header-logo" onClick={() => navigate('/home')}>
-          <img src={logo} alt="Integrity Checker Logo" width="40" height="40" />
+          <img src={logo} alt="Integrity Checker Logo" width="40" height="30" />
           <span className="header-title"><b>Integrity Checker</b></span>
         </div>
       </div>
