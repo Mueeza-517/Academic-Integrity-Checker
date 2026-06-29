@@ -6,7 +6,6 @@
   align-items: center;
 }
 
-/* ===== HEADER - FULL WIDTH ===== */
 .classroom-page .header {
   width: 100% !important;
   max-width: 100% !important;
@@ -26,7 +25,6 @@
   box-sizing: border-box;
 }
 
-/* ===== CENTERED CONTENT CONTAINER ===== */
 .classroom-content {
   display: flex;
   flex-direction: column;
@@ -38,7 +36,6 @@
   margin-top: 32px;
 }
 
-/* ===== BANNER WRAPPER ===== */
 .banner-wrapper {
   position: relative;
   width: 100%;
@@ -46,7 +43,6 @@
   margin-bottom: 24px;
 }
 
-/* ===== BACK BUTTON ===== */
 .back-btn {
   display: flex;
   align-items: center;
@@ -82,7 +78,6 @@
   color: #fff;
 }
 
-/* ===== CLASS BANNER ===== */
 .class-banner {
   width: 100%;
   height: 180px;
@@ -124,7 +119,6 @@
   color: #fff;
 }
 
-/* ===== TABS ===== */
 .classroom-tabs {
   display: flex;
   gap: 8px;
@@ -165,7 +159,6 @@
   box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
 }
 
-/* ===== MAIN CONTENT ===== */
 .classroom-main {
   width: 100%;
   max-width: 860px;
@@ -173,7 +166,6 @@
   padding: 0;
 }
 
-/* ===== CLASSWORK LAYOUT ===== */
 .classwork-layout {
   display: flex;
   flex-direction: column;
@@ -181,7 +173,6 @@
   width: 100%;
 }
 
-/* ===== NEW ASSIGNMENT BUTTON ===== */
 .new-assignment-btn {
   display: inline-flex;
   align-items: center;
@@ -203,7 +194,6 @@
   background: #1557b0;
 }
 
-/* ===== ASSIGNMENT CARDS ===== */
 .assignment-card {
   background: #fff;
   border-radius: 12px;
@@ -257,7 +247,6 @@
   margin: 0;
 }
 
-/* ===== ASSIGNMENT FILES ===== */
 .assignment-files {
   margin: 4px 0;
 }
@@ -294,7 +283,6 @@
   text-decoration: none;
 }
 
-/* ===== DEADLINE ===== */
 .assignment-deadline {
   display: flex;
   align-items: center;
@@ -319,7 +307,6 @@
   color: #c5221f;
 }
 
-/* ===== SUBMIT AREA ===== */
 .submit-area {
   display: flex;
   align-items: center;
@@ -370,7 +357,6 @@
   font-weight: 500;
 }
 
-/* ===== TEACHER ACTIONS ===== */
 .teacher-actions {
   display: flex;
   align-items: center;
@@ -408,7 +394,6 @@
   border-color: #1a73e8;
 }
 
-/* ===== PLAGIARISM RESULT ===== */
 .plag-result {
   background: #fafafa;
   border: 1px solid #e0e0e0;
@@ -468,7 +453,6 @@
   background: #f1f3f4;
 }
 
-/* ===== EMPTY STATE ===== */
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -491,7 +475,6 @@
   margin: 0;
 }
 
-/* ===== PEOPLE TAB ===== */
 .people-layout {
   display: flex;
   flex-direction: column;
@@ -565,7 +548,6 @@
   margin: 0;
 }
 
-/* ===== MODAL ===== */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -644,7 +626,6 @@
   margin-bottom: -4px;
 }
 
-/* ===== FILE UPLOAD IN MODAL ===== */
 .file-upload-area {
   display: flex;
   flex-direction: column;

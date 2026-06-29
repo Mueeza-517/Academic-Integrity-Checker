@@ -4,6 +4,8 @@ import Header from '../../components/Header'
 import API from '../../api'
 import './ClassRoom.css'
 
+const CARD_COLORS = ['#1e7e72', '#5c2d91', '#b06000', '#1a73e8', '#c5221f', '#137333', '#7b5ea7', '#d93025']
+
 export default function ClassRoom() {
   const { classId } = useParams()
   const navigate = useNavigate()
@@ -20,6 +22,9 @@ export default function ClassRoom() {
   const [activePlagId, setActivePlagId] = useState(null)
   const [loading, setLoading] = useState(true)
   const fileInputRef = useRef()
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [newClassName, setNewClassName] = useState('')
+  const [newSection, setNewSection] = useState('')
 
   useEffect(() => {
     const stored = localStorage.getItem('user')
@@ -59,12 +64,9 @@ export default function ClassRoom() {
       formData.append('title', newTitle)
       formData.append('description', newDesc)
       formData.append('deadline', newDeadline)
-      
-      // Append multiple files
       newFiles.forEach(file => {
         formData.append('files', file)
       })
-
       const { data } = await API.post('/assignments', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
@@ -123,6 +125,24 @@ export default function ClassRoom() {
     }
   }
 
+  const handleCreateClass = async () => {
+    if (!newClassName.trim()) return
+    try {
+      const { data: existing } = await API.get('/classes/my')
+      await API.post('/classes', {
+        name: newClassName,
+        section: newSection,
+        color: CARD_COLORS[existing.length % CARD_COLORS.length]
+      })
+      setShowCreateModal(false)
+      setNewClassName('')
+      setNewSection('')
+      navigate('/home')
+    } catch (err) {
+      alert('Failed to create class.')
+    }
+  }
+
   const isPastDeadline = (deadline) => new Date() > new Date(deadline)
 
   const handleGoBack = () => {
@@ -151,7 +171,13 @@ export default function ClassRoom() {
 
   return (
     <div className="classroom-page">
-      <Header user={user} onLogout={handleLogout} onRoleSwitch={handleRoleSwitch} />
+      <Header
+        user={user}
+        onLogout={handleLogout}
+        onRoleSwitch={handleRoleSwitch}
+        onCreateClass={() => setShowCreateModal(true)}
+        onJoinClass={() => navigate('/join')}
+      />
 
       <div className="classroom-content">
         {classData && (
@@ -219,9 +245,9 @@ export default function ClassRoom() {
                           {new Date(a.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                         </span>
                       </div>
-                      
+
                       {a.description && <p className="assignment-desc">{a.description}</p>}
-                      
+
                       {a.files && a.files.length > 0 && (
                         <div className="assignment-files">
                           <p className="files-label">Attached files:</p>
@@ -362,10 +388,8 @@ export default function ClassRoom() {
             <h2>Create Assignment</h2>
             <input className="modal-input" placeholder="Title" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
             <textarea className="modal-input modal-textarea" placeholder="Description (optional)" value={newDesc} onChange={(e) => setNewDesc(e.target.value)} />
-            
             <label className="deadline-label">Deadline</label>
             <input className="modal-input" type="datetime-local" value={newDeadline} onChange={(e) => setNewDeadline(e.target.value)} />
-            
             <div className="file-upload-area">
               <label className="file-upload-label" htmlFor="assignment-files">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -402,10 +426,33 @@ export default function ClassRoom() {
                 </div>
               )}
             </div>
-            
             <div className="modal-actions">
               <button className="modal-cancel" onClick={() => setShowAddAssignment(false)}>Cancel</button>
               <button className="modal-confirm" onClick={handleAddAssignment}>Create</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCreateModal && (
+        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h2>Create class</h2>
+            <input
+              className="modal-input"
+              placeholder="Class name (required)"
+              value={newClassName}
+              onChange={e => setNewClassName(e.target.value)}
+            />
+            <input
+              className="modal-input"
+              placeholder="Section"
+              value={newSection}
+              onChange={e => setNewSection(e.target.value)}
+            />
+            <div className="modal-actions">
+              <button className="modal-cancel" onClick={() => setShowCreateModal(false)}>Cancel</button>
+              <button className="modal-confirm" onClick={handleCreateClass}>Create</button>
             </div>
           </div>
         </div>
