@@ -1,5 +1,4 @@
 import './Header.css'
-import logo from '../../assets/logo.png'
 import { useNavigate } from 'react-router-dom'
 import { useState, useRef, useEffect } from 'react'
 import API from '../../api'
@@ -22,10 +21,7 @@ export default function Header({ user, onCreateClass, onJoinClass, onLogout, onR
   return (
     <header className="header">
       <div className="header-left">
-        <div className="header-logo" onClick={() => navigate('/home')}>
-          <img src={logo} alt="Integrity Checker Logo" width="40" height="30" />
-          <span className="header-title"><b>Integrity Checker</b></span>
-        </div>
+        {/* Logo and title removed */}
       </div>
 
       <div className="header-right">

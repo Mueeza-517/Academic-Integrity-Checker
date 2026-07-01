@@ -1,34 +1,24 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end; 
   padding: 0 16px;
   height: 64px;
-  background: #fff;
-  border-bottom: 1px solid #e0e0e0;
+  background: #f0f4f9;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
-.header-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-}
-
-.header-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #202124;
+.header-left {
+  display: none;
 }
 
 .header-right {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-left: auto; 
 }
 
 .header-btn {
@@ -83,7 +73,6 @@
   object-fit: cover;
 }
 
-/* Dropdown menu */
 .avatar-menu {
   position: absolute;
   top: 48px;
@@ -142,7 +131,6 @@
 
 .avatar-menu-logout:hover { background: #fce8e6; }
 
-/* People tab */
 .person-avatar-img {
   width: 36px;
   height: 36px;
