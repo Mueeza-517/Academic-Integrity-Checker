@@ -6,10 +6,10 @@ const multer = require('multer')
 const path = require('path')
 const fs = require('fs')
 
-// Multer storage config
-const storage = multer.diskStorage({
+// Multer storage for student submissions
+const submissionStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = path.join(__dirname, '../uploads', req.params.assignmentId)
+    const dir = path.join(__dirname, '../uploads/submissions', req.params.assignmentId)
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
     cb(null, dir)
   },
@@ -19,21 +19,43 @@ const storage = multer.diskStorage({
   }
 })
 
-const upload = multer({ storage })
+// Multer storage for assignment files (teacher uploads)
+const assignmentStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(__dirname, '../uploads/assignments')
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+    cb(null, dir)
+  },
+  filename: (req, file, cb) => {
+    const unique = `${Date.now()}_${file.originalname}`
+    cb(null, unique)
+  }
+})
+
+const uploadSubmission = multer({ storage: submissionStorage })
+const uploadAssignment = multer({ storage: assignmentStorage })
 
 // Create assignment (teacher only)
-router.post('/', auth, async (req, res) => {
+router.post('/', auth, uploadAssignment.array('files'), async (req, res) => {
   try {
     if (req.user.role !== 'teacher') {
       return res.status(403).json({ message: 'Only teachers can create assignments' })
     }
     const { classId, title, description, deadline } = req.body
+
+    const files = req.files ? req.files.map(f => ({
+      name: f.originalname,
+      path: f.path,
+      url: `/uploads/assignments/${f.filename}`
+    })) : []
+
     const assignment = new Assignment({
       classId,
       title,
       description,
       deadline,
-      postedBy: req.user.name
+      postedBy: req.user.name,
+      files
     })
     await assignment.save()
     res.status(201).json(assignment)
@@ -52,8 +74,44 @@ router.get('/class/:classId', auth, async (req, res) => {
   }
 })
 
+// Edit assignment (teacher only)
+router.put('/:id', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'teacher') {
+      return res.status(403).json({ message: 'Only teachers can edit assignments' })
+    }
+    const { title, description, deadline } = req.body
+    const assignment = await Assignment.findById(req.params.id)
+    if (!assignment) return res.status(404).json({ message: 'Assignment not found' })
+
+    if (title) assignment.title = title
+    if (description !== undefined) assignment.description = description
+    if (deadline) assignment.deadline = deadline
+
+    await assignment.save()
+    res.json(assignment)
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message })
+  }
+})
+
+// Delete assignment (teacher only)
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'teacher') {
+      return res.status(403).json({ message: 'Only teachers can delete assignments' })
+    }
+    const assignment = await Assignment.findById(req.params.id)
+    if (!assignment) return res.status(404).json({ message: 'Assignment not found' })
+    await Assignment.findByIdAndDelete(req.params.id)
+    res.json({ message: 'Assignment deleted successfully' })
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message })
+  }
+})
+
 // Submit assignment (student only)
-router.post('/:assignmentId/submit', auth, upload.single('file'), async (req, res) => {
+router.post('/:assignmentId/submit', auth, uploadSubmission.single('file'), async (req, res) => {
   try {
     if (req.user.role !== 'student') {
       return res.status(403).json({ message: 'Only students can submit assignments' })
@@ -96,7 +154,6 @@ router.get('/:assignmentId/plagcheck', auth, async (req, res) => {
       return res.json({ pairs: [], message: 'Need at least 2 submissions to check plagiarism.' })
     }
 
-    // Basic file name similarity check — real check needs text extraction
     const pairs = []
     for (let i = 0; i < assignment.submissions.length; i++) {
       for (let j = i + 1; j < assignment.submissions.length; j++) {

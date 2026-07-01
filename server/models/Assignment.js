@@ -1,5 +1,11 @@
 const mongoose = require('mongoose')
 
+const fileSchema = new mongoose.Schema({
+  name: String,
+  path: String,
+  url: String
+})
+
 const submissionSchema = new mongoose.Schema({
   studentName: { type: String, required: true },
   studentEmail: { type: String, required: true },
@@ -15,6 +21,7 @@ const assignmentSchema = new mongoose.Schema({
   description: { type: String, default: '' },
   deadline: { type: Date, required: true },
   postedBy: { type: String, required: true },
+  files: [fileSchema],
   submissions: [submissionSchema]
 }, { timestamps: true })
 

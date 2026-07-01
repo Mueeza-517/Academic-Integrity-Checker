@@ -232,7 +232,7 @@ export default function ClassRoom() {
                 </div>
               ) : (
                 assignments.map((a) => (
-                  <div key={a._id} className="assignment-card">
+                  <div key={a._id} className="assignment-card" style={{ cursor: 'pointer' }} onClick={() => navigate(`/class/${classId}/assignment/${a._id}`)}>
                     <div className="assignment-icon">
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="#1a73e8">
                         <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L21 8l-9 9z" />
