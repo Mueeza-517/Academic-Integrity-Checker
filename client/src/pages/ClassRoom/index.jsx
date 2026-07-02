@@ -4,7 +4,7 @@ import Header from '../../components/Header'
 import API from '../../api'
 import './ClassRoom.css'
 
-const CARD_COLORS = ['#1e7e72', '#5c2d91', '#b06000', '#1a73e8', '#c5221f', '#137333', '#7b5ea7', '#d93025']
+const CARD_COLORS = ['#3443eb']
 
 export default function ClassRoom() {
   const { classId } = useParams()
@@ -132,7 +132,7 @@ export default function ClassRoom() {
       await API.post('/classes', {
         name: newClassName,
         section: newSection,
-        color: CARD_COLORS[existing.length % CARD_COLORS.length]
+        color: '#3443eb'
       })
       setShowCreateModal(false)
       setNewClassName('')

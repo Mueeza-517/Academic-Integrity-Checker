@@ -1,0 +1,40 @@
+.allclasses-page {
+ padding: 100px 32px 24px;
+  width: 100%;
+}
+
+.allclasses-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.allclasses-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #202124;
+  margin: 0 0 4px;
+}
+
+.allclasses-subtitle {
+  font-size: 13px;
+  color: #5f6368;
+  margin: 0;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  font-size: 16px;
+  color: #5f6368;
+  text-align: center;
+}
