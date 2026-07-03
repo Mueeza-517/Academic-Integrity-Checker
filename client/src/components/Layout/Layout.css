@@ -41,11 +41,11 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .app-layout {
     flex-direction: column;
   }
-  
+
   .app-content {
     margin-left: 0;
     padding: 0;

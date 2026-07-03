@@ -7,7 +7,7 @@
   background: #f0f4f9;
   position: sticky;
   top: 0;
-  z-index: 100;
+  /* z-index: 100; */
 }
 
 .header-left {
