@@ -41,7 +41,7 @@ router.post('/', auth, uploadAssignment.array('files'), async (req, res) => {
     if (req.user.role !== 'teacher') {
       return res.status(403).json({ message: 'Only teachers can create assignments' })
     }
-    const { classId, title, description, deadline } = req.body
+    const { classId, title, description, deadline, totalMarks } = req.body
 
     const files = req.files ? req.files.map(f => ({
       name: f.originalname,
@@ -55,6 +55,7 @@ router.post('/', auth, uploadAssignment.array('files'), async (req, res) => {
       description,
       deadline,
       postedBy: req.user.name,
+      totalMarks: totalMarks || 100,
       files
     })
     await assignment.save()
@@ -134,6 +135,34 @@ router.post('/:assignmentId/submit', auth, uploadSubmission.single('file'), asyn
       fileSize: req.file.size
     })
 
+    await assignment.save()
+    res.json(assignment)
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message })
+  }
+})
+
+// Give marks to a submission (teacher only)
+router.put('/:assignmentId/submissions/:studentEmail/marks', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'teacher') {
+      return res.status(403).json({ message: 'Only teachers can give marks' })
+    }
+    const { marks } = req.body
+    const assignment = await Assignment.findById(req.params.assignmentId)
+    if (!assignment) return res.status(404).json({ message: 'Assignment not found' })
+
+    if (marks > assignment.totalMarks) {
+      return res.status(400).json({ message: `Marks cannot exceed total marks (${assignment.totalMarks})` })
+    }
+    if (marks < 0) {
+      return res.status(400).json({ message: 'Marks cannot be negative' })
+    }
+
+    const submission = assignment.submissions.find(s => s.studentEmail === req.params.studentEmail)
+    if (!submission) return res.status(404).json({ message: 'Submission not found' })
+
+    submission.marks = marks
     await assignment.save()
     res.json(assignment)
   } catch (err) {

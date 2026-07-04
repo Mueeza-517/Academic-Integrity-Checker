@@ -673,6 +673,99 @@
   background: #2535d4;
 }
 
+.assignment-marks-badge {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: #e8f0fe;
+  color: #3443eb;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.submitted-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.marks-tag {
+  font-size: 13px;
+  color: #3443eb;
+  font-weight: 600;
+  background: #eef0fd;
+  padding: 3px 10px;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.marks-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.marks-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.marks-student {
+  font-size: 13px;
+  font-weight: 500;
+  color: #202124;
+  flex: 1;
+  min-width: 120px;
+}
+
+.marks-given {
+  font-size: 13px;
+  font-weight: 600;
+  color: #137333;
+  background: #e6f4ea;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.marks-input {
+  width: 80px;
+  padding: 6px 10px;
+  border: 1px solid #dadce0;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.marks-input:focus {
+  border-color: #3443eb;
+}
+
+.marks-save-btn {
+  padding: 6px 14px;
+  background: #3443eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+
+.marks-save-btn:hover {
+  background: #2535d4;
+}
+
 @media (max-width: 768px) {
   .classroom-content {
     padding: 12px;

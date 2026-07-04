@@ -12,7 +12,8 @@ const submissionSchema = new mongoose.Schema({
   fileName: { type: String, required: true },
   filePath: { type: String, required: true },
   fileSize: { type: Number },
-  submittedAt: { type: Date, default: Date.now }
+  submittedAt: { type: Date, default: Date.now },
+  marks: { type: Number, default: null }
 })
 
 const assignmentSchema = new mongoose.Schema({
@@ -21,6 +22,7 @@ const assignmentSchema = new mongoose.Schema({
   description: { type: String, default: '' },
   deadline: { type: Date, required: true },
   postedBy: { type: String, required: true },
+  totalMarks: { type: Number, default: 100 },
   files: [fileSchema],
   submissions: [submissionSchema]
 }, { timestamps: true })

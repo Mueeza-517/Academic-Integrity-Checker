@@ -24,6 +24,9 @@ export default function ClassRoom() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [newClassName, setNewClassName] = useState('')
   const [newSection, setNewSection] = useState('')
+  const [newTotalMarks, setNewTotalMarks] = useState(100)
+  const [givingMarks, setGivingMarks] = useState({})
+  const [marksInput, setMarksInput] = useState({})
 
   useEffect(() => {
     const stored = localStorage.getItem('user')
@@ -63,6 +66,7 @@ export default function ClassRoom() {
       formData.append('title', newTitle)
       formData.append('description', newDesc)
       formData.append('deadline', newDeadline)
+      formData.append('totalMarks', newTotalMarks)
       newFiles.forEach(file => {
         formData.append('files', file)
       })
@@ -73,6 +77,7 @@ export default function ClassRoom() {
       setNewTitle('')
       setNewDesc('')
       setNewDeadline('')
+      setNewTotalMarks(100)
       setNewFiles([])
       setShowAddAssignment(false)
     } catch (err) {
@@ -164,6 +169,23 @@ export default function ClassRoom() {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
   }
 
+  const handleGiveMarks = async (assignmentId, studentEmail, totalMarks) => {
+    const marks = marksInput[`${assignmentId}_${studentEmail}`]
+    if (marks === undefined || marks === '') return alert('Please enter marks')
+    if (Number(marks) > totalMarks) return alert(`Marks cannot exceed ${totalMarks}`)
+    if (Number(marks) < 0) return alert('Marks cannot be negative')
+    try {
+      const { data } = await API.put(
+        `/assignments/${assignmentId}/submissions/${studentEmail}/marks`,
+        { marks: Number(marks) }
+      )
+      setAssignments(prev => prev.map(a => a._id === assignmentId ? data : a))
+      setGivingMarks(prev => ({ ...prev, [`${assignmentId}_${studentEmail}`]: false }))
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to give marks.')
+    }
+  }
+
   return (
     <div className="classroom-page">
       <div className="classroom-content">
@@ -225,6 +247,9 @@ export default function ClassRoom() {
                         <span className="assignment-date">
                           {new Date(a.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                         </span>
+                        <span className="assignment-marks-badge">
+                          {a.totalMarks} marks
+                        </span>
                       </div>
 
                       {a.description && <p className="assignment-desc">{a.description}</p>}
@@ -236,7 +261,7 @@ export default function ClassRoom() {
                             {a.files.map((file, index) => (
                               <a key={index} href={file.url} target="_blank" rel="noopener noreferrer" className="file-item">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="#1a73e8">
-                                  <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                                  <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
                                 </svg>
                                 {file.name}
                               </a>
@@ -271,12 +296,20 @@ export default function ClassRoom() {
                             />
                           </label>
                           {a.submissions?.find(s => s.studentEmail === user?.email) && (
-                            <span className="submitted-tag">
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="#137333">
-                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                              </svg>
-                              {a.submissions.find(s => s.studentEmail === user?.email).fileName}
-                            </span>
+                            <div className="submitted-info">
+                              <span className="submitted-tag">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="#137333">
+                                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                </svg>
+                                {a.submissions.find(s => s.studentEmail === user?.email).fileName}
+                              </span>
+                              {a.submissions.find(s => s.studentEmail === user?.email).marks !== null &&
+                                a.submissions.find(s => s.studentEmail === user?.email).marks !== undefined && (
+                                  <span className="marks-tag">
+                                    Marks: {a.submissions.find(s => s.studentEmail === user?.email).marks}/{a.totalMarks}
+                                  </span>
+                                )}
+                            </div>
                           )}
                           {isPastDeadline(a.deadline) && !a.submissions?.find(s => s.studentEmail === user?.email) && (
                             <span className="error-msg">
@@ -295,7 +328,43 @@ export default function ClassRoom() {
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="#5f6368">
                               <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
                             </svg>
-                            {a.submissions?.length || 0} submission{a.submissions?.length !== 1 ? 's' : ''}
+                            {a.submissions?.length > 0 && (
+                              <div className="marks-section">
+                                {a.submissions.map((s, i) => (
+                                  <div key={i} className="marks-row">
+                                    <span className="marks-student">{s.studentName}</span>
+                                    {s.marks !== null && s.marks !== undefined ? (
+                                      <span className="marks-given">{s.marks}/{a.totalMarks}</span>
+                                    ) : (
+                                      <>
+                                        <input
+                                          className="marks-input"
+                                          type="number"
+                                          min="0"
+                                          max={a.totalMarks}
+                                          placeholder={`0-${a.totalMarks}`}
+                                          value={marksInput[`${a._id}_${s.studentEmail}`] || ''}
+                                          onChange={e => setMarksInput(prev => ({
+                                            ...prev,
+                                            [`${a._id}_${s.studentEmail}`]: e.target.value
+                                          }))}
+                                          onClick={e => e.stopPropagation()}
+                                        />
+                                        <button
+                                          className="marks-save-btn"
+                                          onClick={e => {
+                                            e.stopPropagation()
+                                            handleGiveMarks(a._id, s.studentEmail, a.totalMarks)
+                                          }}
+                                        >
+                                          Save
+                                        </button>
+                                      </>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </span>
                           <button className="plag-btn" onClick={() => handlePlagCheck(a._id)}>
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -369,8 +438,20 @@ export default function ClassRoom() {
             <h2>Create Assignment</h2>
             <input className="modal-input" placeholder="Title" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
             <textarea className="modal-input modal-textarea" placeholder="Description (optional)" value={newDesc} onChange={(e) => setNewDesc(e.target.value)} />
+
             <label className="deadline-label">Deadline</label>
             <input className="modal-input" type="datetime-local" value={newDeadline} onChange={(e) => setNewDeadline(e.target.value)} />
+
+            <label className="deadline-label">Total Marks (1-100)</label>
+            <input
+              className="modal-input"
+              type="number"
+              min="1"
+              max="100"
+              value={newTotalMarks}
+              onChange={e => setNewTotalMarks(Math.min(100, Math.max(1, Number(e.target.value))))}
+            />
+
             <div className="file-upload-area">
               <label className="file-upload-label" htmlFor="assignment-files">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -393,13 +474,13 @@ export default function ClassRoom() {
                     <div key={index} className="selected-file">
                       <span className="file-name">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="#1a73e8">
-                          <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                          <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
                         </svg>
                         {file.name} ({formatFileSize(file.size)})
                       </span>
                       <button className="remove-file" onClick={() => removeFile(index)}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
                         </svg>
                       </button>
                     </div>
