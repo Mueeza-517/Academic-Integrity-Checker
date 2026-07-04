@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import Header from '../../components/Header'
 import API from '../../api'
 import './ClassRoom.css'
 
@@ -145,10 +144,6 @@ export default function ClassRoom() {
 
   const isPastDeadline = (deadline) => new Date() > new Date(deadline)
 
-  const handleGoBack = () => {
-    navigate('/home')
-  }
-
   const handleFileChange = (e) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files)
@@ -171,23 +166,9 @@ export default function ClassRoom() {
 
   return (
     <div className="classroom-page">
-      <Header
-        user={user}
-        onLogout={handleLogout}
-        onRoleSwitch={handleRoleSwitch}
-        onCreateClass={() => setShowCreateModal(true)}
-        onJoinClass={() => navigate('/join')}
-      />
-
       <div className="classroom-content">
         {classData && (
           <div className="banner-wrapper">
-            <button className="back-btn" onClick={handleGoBack} title="Go back to home">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-              </svg>
-              <span>Back</span>
-            </button>
             <div
               className="class-banner"
               style={

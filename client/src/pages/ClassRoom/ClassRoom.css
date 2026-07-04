@@ -6,32 +6,11 @@
   align-items: center;
 }
 
-.classroom-page .header {
-  width: 100% !important;
-  max-width: 100% !important;
-  border-radius: 0 !important;
-  margin: 0 !important;
-  padding: 0 24px !important;
-  flex-shrink: 0;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-sizing: border-box;
-}
-
 .classroom-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
-  max-width: 860px;
-  margin: 0 auto;
+  padding: 20px 32px;
   width: 100%;
   margin-top: 32px;
 }
@@ -39,53 +18,17 @@
 .banner-wrapper {
   position: relative;
   width: 100%;
-  max-width: 860px;
   margin-bottom: 24px;
-}
-
-.back-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  border-radius: 8px;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  z-index: 10;
-  backdrop-filter: blur(8px);
-  font-family: inherit;
-}
-
-.back-btn:hover {
-  background: rgba(255, 255, 255, 0.35);
-  transform: translateX(-2px);
-}
-
-.back-btn svg {
-  width: 20px;
-  height: 20px;
-}
-
-.back-btn span {
-  color: #fff;
 }
 
 .class-banner {
   width: 100%;
-  height: 180px;
+  height: 230px;
   display: flex;
   align-items: flex-end;
   padding: 24px 32px;
   position: relative;
-  background: #1a73e8;
+  background: #3443eb;
   color: #fff;
   border-radius: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -129,7 +72,6 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   border: 1px solid #e0e0e0;
   width: 100%;
-  max-width: 860px;
   justify-content: center;
 }
 
@@ -154,14 +96,13 @@
 }
 
 .tab-btn.active {
-  background: #1a73e8;
+  background: #3443eb;
   color: #fff;
-  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
+  box-shadow: 0 2px 8px rgba(52, 67, 235, 0.3);
 }
 
 .classroom-main {
   width: 100%;
-  max-width: 860px;
   margin: 0 auto;
   padding: 0;
 }
@@ -178,7 +119,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: #1a73e8;
+  background: #3443eb;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -191,7 +132,7 @@
 }
 
 .new-assignment-btn:hover {
-  background: #1557b0;
+  background: #2535d4;
 }
 
 .assignment-card {
@@ -320,9 +261,9 @@
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  border: 1px solid #1a73e8;
+  border: 1px solid #3443eb;
   border-radius: 8px;
-  color: #1a73e8;
+  color: #3443eb;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -331,7 +272,7 @@
 }
 
 .file-label:hover {
-  background: #e8f0fe;
+  background: #eef0fd;
 }
 
 .file-label.disabled {
@@ -391,7 +332,7 @@
 
 .plag-btn:hover {
   background: #f1f3f4;
-  border-color: #1a73e8;
+  border-color: #3443eb;
 }
 
 .plag-result {
@@ -507,7 +448,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #1a73e8;
+  background: #3443eb;
   color: #fff;
   display: flex;
   align-items: center;
@@ -560,12 +501,8 @@
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .modal {
@@ -582,14 +519,8 @@
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .modal h2 {
@@ -612,7 +543,7 @@
 }
 
 .modal-input:focus {
-  border-color: #1a73e8;
+  border-color: #3443eb;
 }
 
 .modal-textarea {
@@ -648,9 +579,9 @@
 }
 
 .file-upload-label:hover {
-  border-color: #1a73e8;
+  border-color: #3443eb;
   background: #f8f9fa;
-  color: #1a73e8;
+  color: #3443eb;
 }
 
 .selected-files {
@@ -666,7 +597,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  background: #e8f0fe;
+  background: #eef0fd;
   border-radius: 6px;
 }
 
@@ -675,7 +606,7 @@
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: #1a73e8;
+  color: #3443eb;
   font-weight: 500;
   max-width: 300px;
   overflow: hidden;
@@ -712,7 +643,7 @@
   padding: 9px 18px;
   border: none;
   background: transparent;
-  color: #1a73e8;
+  color: #3443eb;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -722,13 +653,13 @@
 }
 
 .modal-cancel:hover {
-  background: #e8f0fe;
+  background: #eef0fd;
 }
 
 .modal-confirm {
   padding: 9px 18px;
   border: none;
-  background: #1a73e8;
+  background: #3443eb;
   color: #fff;
   font-size: 14px;
   font-weight: 500;
@@ -739,10 +670,9 @@
 }
 
 .modal-confirm:hover {
-  background: #1557b0;
+  background: #2535d4;
 }
 
-/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .classroom-content {
     padding: 12px;
@@ -755,7 +685,7 @@
     padding: 6px 12px;
     font-size: 12px;
   }
-  
+
   .back-btn svg {
     width: 16px;
     height: 16px;
@@ -771,13 +701,8 @@
     border-radius: 12px;
   }
 
-  .banner-info h1 {
-    font-size: 22px;
-  }
-
-  .banner-info p {
-    font-size: 14px;
-  }
+  .banner-info h1 { font-size: 22px; }
+  .banner-info p { font-size: 14px; }
 
   .classroom-tabs {
     padding: 4px;
@@ -816,14 +741,7 @@
     align-items: flex-start;
   }
 
-  .classroom-page .header {
-    padding: 0 16px !important;
-    height: 56px;
-  }
-
-  .file-name {
-    max-width: 200px;
-  }
+  .file-name { max-width: 200px; }
 }
 
 @media (max-width: 480px) {
@@ -838,10 +756,8 @@
     padding: 4px 10px;
     font-size: 11px;
   }
-  
-  .back-btn span {
-    display: none;
-  }
+
+  .back-btn span { display: none; }
 
   .class-banner {
     height: 120px;
@@ -849,17 +765,10 @@
     border-radius: 10px;
   }
 
-  .class-banner::after {
-    border-radius: 10px;
-  }
+  .class-banner::after { border-radius: 10px; }
 
-  .banner-info h1 {
-    font-size: 18px;
-  }
-
-  .banner-info p {
-    font-size: 13px;
-  }
+  .banner-info h1 { font-size: 18px; }
+  .banner-info p { font-size: 13px; }
 
   .classroom-tabs {
     padding: 4px;
@@ -872,9 +781,7 @@
     max-width: 100px;
   }
 
-  .assignment-card {
-    padding: 12px;
-  }
+  .assignment-card { padding: 12px; }
 
   .modal {
     padding: 20px;
@@ -886,14 +793,7 @@
     justify-content: center;
   }
 
-  .classroom-page .header {
-    padding: 0 12px !important;
-    height: 48px;
-  }
-
-  .file-name {
-    max-width: 150px;
-  }
+  .file-name { max-width: 150px; }
 
   .files-list {
     flex-direction: column;
