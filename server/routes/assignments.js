@@ -76,18 +76,31 @@ router.get('/class/:classId', auth, async (req, res) => {
 })
 
 // Edit assignment (teacher only)
-router.put('/:id', auth, async (req, res) => {
+router.put('/:id', auth, uploadAssignment.array('files'), async (req, res) => {
   try {
     if (req.user.role !== 'teacher') {
       return res.status(403).json({ message: 'Only teachers can edit assignments' })
     }
-    const { title, description, deadline } = req.body
+    const { title, description, deadline, totalMarks } = req.body
     const assignment = await Assignment.findById(req.params.id)
     if (!assignment) return res.status(404).json({ message: 'Assignment not found' })
 
     if (title) assignment.title = title
     if (description !== undefined) assignment.description = description
     if (deadline) assignment.deadline = deadline
+    if (totalMarks) assignment.totalMarks = totalMarks
+
+    if (req.files && req.files.length > 0) {
+      const newFiles = req.files.map(f => ({
+        name: f.originalname,
+        path: f.path,
+        url: `/uploads/assignments/${f.filename}`
+      }))
+      if (!assignment.files) {
+        assignment.files = []
+      }
+      newFiles.forEach(f => assignment.files.push(f))
+    }
 
     await assignment.save()
     res.json(assignment)

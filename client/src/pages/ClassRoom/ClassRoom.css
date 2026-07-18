@@ -893,3 +893,130 @@
     width: 100%;
   }
 }
+
+.assignment-card-v2 {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e8eaed;
+  padding: 24px 28px;
+  margin-bottom: 20px;
+}
+
+.ac-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ac-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #202124;
+  margin: 0 0 6px;
+}
+
+.ac-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #5f6368;
+}
+
+.ac-deadline.active { color: #5f6368; }
+.ac-deadline.past { color: #c5221f; }
+
+.ac-meta-divider { color: #dadce0; }
+
+.ac-marks {
+  font-weight: 500;
+}
+
+.ac-header-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ac-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  background: #1a56db;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.ac-action-btn:hover { background: #1547b8; }
+
+.ac-divider {
+  height: 1px;
+  background: #eceef2;
+  margin: 18px 0;
+}
+
+.ac-section-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #202124;
+  margin: 0 0 10px;
+}
+
+.ac-attachments {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ac-file-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #e8eaed;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.ac-file-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ac-file-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #202124;
+}
+
+.ac-download-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #1a56db;
+  color: #fff;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.ac-download-btn:hover { background: #1547b8; }
+
+.ac-description {
+  font-size: 14px;
+  color: #3c4043;
+  line-height: 1.6;
+  margin: 0;
+}

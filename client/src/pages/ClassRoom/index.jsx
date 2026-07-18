@@ -27,6 +27,16 @@ export default function ClassRoom() {
   const [newTotalMarks, setNewTotalMarks] = useState(100)
   const [givingMarks, setGivingMarks] = useState({})
   const [marksInput, setMarksInput] = useState({})
+  const [editFiles, setEditFiles] = useState([])
+  const editFileInputRef = useRef()
+
+  // Edit assignment state
+  const [showEditAssignment, setShowEditAssignment] = useState(false)
+  const [editingId, setEditingId] = useState(null)
+  const [editTitle, setEditTitle] = useState('')
+  const [editDesc, setEditDesc] = useState('')
+  const [editDeadline, setEditDeadline] = useState('')
+  const [editTotalMarks, setEditTotalMarks] = useState(100)
 
   useEffect(() => {
     const stored = localStorage.getItem('user')
@@ -82,6 +92,49 @@ export default function ClassRoom() {
       setShowAddAssignment(false)
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to create assignment.')
+    }
+  }
+
+  const openEditAssignment = (a) => {
+    setEditingId(a._id)
+    setEditTitle(a.title)
+    setEditDesc(a.description || '')
+    setEditDeadline(new Date(a.deadline).toISOString().slice(0, 16))
+    setEditTotalMarks(a.totalMarks || 100)
+    setEditFiles([])
+    setShowEditAssignment(true)
+  }
+
+  const handleUpdateAssignment = async () => {
+    if (!editTitle.trim() || !editDeadline) return
+    try {
+      const formData = new FormData()
+      formData.append('title', editTitle)
+      formData.append('description', editDesc)
+      formData.append('deadline', editDeadline)
+      formData.append('totalMarks', editTotalMarks)
+      editFiles.forEach(file => {
+        formData.append('files', file)
+      })
+      const { data } = await API.put(`/assignments/${editingId}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      setAssignments(prev => prev.map(a => a._id === editingId ? data : a))
+      setShowEditAssignment(false)
+      setEditingId(null)
+      setEditFiles([])
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to update assignment.')
+    }
+  }
+
+  const handleDeleteAssignment = async (assignmentId) => {
+    if (!window.confirm('Delete this assignment? This cannot be undone.')) return
+    try {
+      await API.delete(`/assignments/${assignmentId}`)
+      setAssignments(prev => prev.filter(a => a._id !== assignmentId))
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to delete assignment.')
     }
   }
 
@@ -163,6 +216,20 @@ export default function ClassRoom() {
     }
   }
 
+  const handleEditFileChange = (e) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files)
+      setEditFiles(prev => [...prev, ...filesArray])
+    }
+  }
+
+  const removeEditFile = (index) => {
+    setEditFiles(prev => prev.filter((_, i) => i !== index))
+    if (editFileInputRef.current) {
+      editFileInputRef.current.value = ''
+    }
+  }
+
   const formatFileSize = (bytes) => {
     if (bytes < 1024) return bytes + ' B'
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
@@ -234,145 +301,170 @@ export default function ClassRoom() {
                   <p>No assignments yet.</p>
                 </div>
               ) : (
-                assignments.map((a) => (
-                  <div key={a._id} className="assignment-card" style={{ cursor: 'pointer' }} onClick={() => navigate(`/class/${classId}/assignment/${a._id}`)}>
-                    <div className="assignment-icon">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="#1a73e8">
-                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L21 8l-9 9z" />
-                      </svg>
-                    </div>
-                    <div className="assignment-content">
-                      <div className="assignment-header">
-                        <h3 className="assignment-title">{a.title}</h3>
-                        <span className="assignment-date">
-                          {new Date(a.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                        </span>
-                        <span className="assignment-marks-badge">
-                          {a.totalMarks} marks
-                        </span>
-                      </div>
+                assignments.map((a) => {
+                  const mySubmission = a.submissions?.find(s => s.studentEmail === user?.email)
+                  return (
+                    <div key={a._id} className="assignment-card-v2">
 
-                      {a.description && <p className="assignment-desc">{a.description}</p>}
-
-                      {a.files && a.files.length > 0 && (
-                        <div className="assignment-files">
-                          <p className="files-label">Attached files:</p>
-                          <div className="files-list">
-                            {a.files.map((file, index) => (
-                              <a key={index} href={file.url} target="_blank" rel="noopener noreferrer" className="file-item">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="#1a73e8">
-                                  <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
-                                </svg>
-                                {file.name}
-                              </a>
-                            ))}
+                      {/* Header row: title/meta on left, action buttons on right */}
+                      <div className="ac-header-row">
+                        <div className="ac-header-left">
+                          <h3 className="ac-title">{a.title}</h3>
+                          <div className="ac-meta-row">
+                            <span className={`ac-deadline ${isPastDeadline(a.deadline) ? 'past' : 'active'}`}>
+                              Due: {new Date(a.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} · {new Date(a.deadline).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                            <span className="ac-meta-divider">|</span>
+                            <span className="ac-marks">{a.totalMarks} Marks</span>
                           </div>
                         </div>
-                      )}
 
-                      <div className="assignment-deadline">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill={isPastDeadline(a.deadline) ? '#c5221f' : '#137333'}>
-                          <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" />
-                        </svg>
-                        <span className={`deadline-badge ${isPastDeadline(a.deadline) ? 'past' : 'active'}`}>
-                          {isPastDeadline(a.deadline) ? 'Closed' : 'Open'} · Due{' '}
-                          {new Date(a.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                        </span>
+                        <div className="ac-header-actions">
+                          {user?.role === 'teacher' && (
+                            <>
+                              <button className="ac-action-btn" onClick={() => openEditAssignment(a)}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                                </svg>
+                                Update
+                              </button>
+                              <button className="ac-action-btn" onClick={() => handleDeleteAssignment(a._id)}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                                </svg>
+                                Delete
+                              </button>
+                              <button className="ac-action-btn" onClick={() => handlePlagCheck(a._id)}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                                </svg>
+                                Plagiarism
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </div>
 
-                      {user?.role === 'student' && (
-                        <div className="submit-area">
-                          <label className={`file-label ${isPastDeadline(a.deadline) ? 'disabled' : ''}`}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z" />
-                            </svg>
-                            Attach & Submit
-                            <input
-                              type="file"
-                              accept=".pdf,.doc,.docx,.xlsx,.xls,.zip,.rar,.pptx"
-                              disabled={isPastDeadline(a.deadline)}
-                              onChange={(e) => { if (e.target.files[0]) handleSubmit(a._id, e.target.files[0]) }}
-                              style={{ display: 'none' }}
-                            />
-                          </label>
-                          {a.submissions?.find(s => s.studentEmail === user?.email) && (
-                            <div className="submitted-info">
-                              <span className="submitted-tag">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="#137333">
-                                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                                </svg>
-                                {a.submissions.find(s => s.studentEmail === user?.email).fileName}
-                              </span>
-                              {a.submissions.find(s => s.studentEmail === user?.email).marks !== null &&
-                                a.submissions.find(s => s.studentEmail === user?.email).marks !== undefined && (
-                                  <span className="marks-tag">
-                                    Marks: {a.submissions.find(s => s.studentEmail === user?.email).marks}/{a.totalMarks}
-                                  </span>
-                                )}
-                            </div>
-                          )}
-                          {isPastDeadline(a.deadline) && !a.submissions?.find(s => s.studentEmail === user?.email) && (
-                            <span className="error-msg">
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="#c5221f">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                              </svg>
-                              Submission time is over
-                            </span>
-                          )}
-                        </div>
+                      <div className="ac-divider" />
+
+                      {/* Attachments */}
+                      {a.files && a.files.length > 0 && (
+                        <>
+                          <p className="ac-section-label">Attachments</p>
+                          <div className="ac-attachments">
+                            {a.files.map((file, index) => (
+                              <div key={index} className="ac-file-row">
+                                <div className="ac-file-left">
+                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#5f6368">
+                                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+                                  </svg>
+                                  <span className="ac-file-name">{file.name}</span>
+                                </div>
+                                <a href={file.url} target="_blank" rel="noopener noreferrer" className="ac-download-btn">
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                                  </svg>
+                                  Download
+                                </a>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="ac-divider" />
+                        </>
                       )}
 
-                      {user?.role === 'teacher' && (
-                        <div className="teacher-actions">
-                          <span className="submission-count">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="#5f6368">
-                              <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
-                            </svg>
-                            {a.submissions?.length > 0 && (
-                              <div className="marks-section">
-                                {a.submissions.map((s, i) => (
-                                  <div key={i} className="marks-row">
-                                    <span className="marks-student">{s.studentName}</span>
-                                    {s.marks !== null && s.marks !== undefined ? (
-                                      <span className="marks-given">{s.marks}/{a.totalMarks}</span>
-                                    ) : (
-                                      <>
-                                        <input
-                                          className="marks-input"
-                                          type="number"
-                                          min="0"
-                                          max={a.totalMarks}
-                                          placeholder={`0-${a.totalMarks}`}
-                                          value={marksInput[`${a._id}_${s.studentEmail}`] || ''}
-                                          onChange={e => setMarksInput(prev => ({
-                                            ...prev,
-                                            [`${a._id}_${s.studentEmail}`]: e.target.value
-                                          }))}
-                                          onClick={e => e.stopPropagation()}
-                                        />
-                                        <button
-                                          className="marks-save-btn"
-                                          onClick={e => {
-                                            e.stopPropagation()
-                                            handleGiveMarks(a._id, s.studentEmail, a.totalMarks)
-                                          }}
-                                        >
-                                          Save
-                                        </button>
-                                      </>
-                                    )}
-                                  </div>
-                                ))}
+                      {/* Description */}
+                      {a.description && (
+                        <>
+                          <p className="ac-section-label">Description</p>
+                          <p className="ac-description">{a.description}</p>
+                        </>
+                      )}
+
+                      {/* Student: submit area */}
+                      {user?.role === 'student' && (
+                        <>
+                          <div className="ac-divider" />
+                          <div className="submit-area">
+                            <label className={`file-label ${isPastDeadline(a.deadline) ? 'disabled' : ''}`}>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z" />
+                              </svg>
+                              Attach & Submit
+                              <input
+                                type="file"
+                                accept=".pdf,.doc,.docx,.xlsx,.xls,.zip,.rar,.pptx"
+                                disabled={isPastDeadline(a.deadline)}
+                                onChange={(e) => { if (e.target.files[0]) handleSubmit(a._id, e.target.files[0]) }}
+                                style={{ display: 'none' }}
+                              />
+                            </label>
+                            {mySubmission && (
+                              <div className="submitted-info">
+                                <span className="submitted-tag">
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#137333">
+                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                  </svg>
+                                  {mySubmission.fileName}
+                                </span>
+                                {mySubmission.marks !== null && mySubmission.marks !== undefined && (
+                                  <span className="marks-tag">
+                                    Marks: {mySubmission.marks}/{a.totalMarks}
+                                  </span>
+                                )}
                               </div>
                             )}
-                          </span>
-                          <button className="plag-btn" onClick={() => handlePlagCheck(a._id)}>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-                            </svg>
-                            Check Plagiarism
-                          </button>
-                        </div>
+                            {isPastDeadline(a.deadline) && !mySubmission && (
+                              <span className="error-msg">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="#c5221f">
+                                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                                </svg>
+                                Submission time is over
+                              </span>
+                            )}
+                          </div>
+                        </>
+                      )}
+
+                      {/* Teacher: submissions/marks list */}
+                      {user?.role === 'teacher' && a.submissions?.length > 0 && (
+                        <>
+                          <div className="ac-divider" />
+                          <p className="ac-section-label">
+                            Submissions ({a.submissions.length})
+                          </p>
+                          <div className="marks-section">
+                            {a.submissions.map((s, i) => (
+                              <div key={i} className="marks-row">
+                                <span className="marks-student">{s.studentName}</span>
+                                {s.marks !== null && s.marks !== undefined ? (
+                                  <span className="marks-given">{s.marks}/{a.totalMarks}</span>
+                                ) : (
+                                  <>
+                                    <input
+                                      className="marks-input"
+                                      type="number"
+                                      min="0"
+                                      max={a.totalMarks}
+                                      placeholder={`0-${a.totalMarks}`}
+                                      value={marksInput[`${a._id}_${s.studentEmail}`] || ''}
+                                      onChange={e => setMarksInput(prev => ({
+                                        ...prev,
+                                        [`${a._id}_${s.studentEmail}`]: e.target.value
+                                      }))}
+                                    />
+                                    <button
+                                      className="marks-save-btn"
+                                      onClick={() => handleGiveMarks(a._id, s.studentEmail, a.totalMarks)}
+                                    >
+                                      Save
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </>
                       )}
 
                       {activePlagId === a._id && plagResult?.id === a._id && (
@@ -396,8 +488,8 @@ export default function ClassRoom() {
                         </div>
                       )}
                     </div>
-                  </div>
-                ))
+                  )
+                })
               )}
             </div>
           )}
@@ -491,6 +583,71 @@ export default function ClassRoom() {
             <div className="modal-actions">
               <button className="modal-cancel" onClick={() => setShowAddAssignment(false)}>Cancel</button>
               <button className="modal-confirm" onClick={handleAddAssignment}>Create</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showEditAssignment && (
+        <div className="modal-overlay" onClick={() => setShowEditAssignment(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Update Assignment</h2>
+            <input className="modal-input" placeholder="Title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
+            <textarea className="modal-input modal-textarea" placeholder="Description (optional)" value={editDesc} onChange={(e) => setEditDesc(e.target.value)} />
+
+            <label className="deadline-label">Deadline</label>
+            <input className="modal-input" type="datetime-local" value={editDeadline} onChange={(e) => setEditDeadline(e.target.value)} />
+
+            <label className="deadline-label">Total Marks (1-100)</label>
+            <input
+              className="modal-input"
+              type="number"
+              min="1"
+              max="100"
+              value={editTotalMarks}
+              onChange={e => setEditTotalMarks(Math.min(100, Math.max(1, Number(e.target.value))))}
+            />
+
+            <div className="file-upload-area">
+              <label className="file-upload-label" htmlFor="edit-assignment-files">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z" />
+                </svg>
+                Attach more files (optional)
+              </label>
+              <input
+                id="edit-assignment-files"
+                type="file"
+                multiple
+                accept=".pdf,.doc,.docx,.xlsx,.xls,.zip,.rar,.pptx,.jpg,.jpeg,.png,.gif,.txt,.csv"
+                ref={editFileInputRef}
+                onChange={handleEditFileChange}
+                style={{ display: 'none' }}
+              />
+              {editFiles.length > 0 && (
+                <div className="selected-files">
+                  {editFiles.map((file, index) => (
+                    <div key={index} className="selected-file">
+                      <span className="file-name">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="#1a73e8">
+                          <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+                        </svg>
+                        {file.name} ({formatFileSize(file.size)})
+                      </span>
+                      <button className="remove-file" onClick={() => removeEditFile(index)}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="modal-actions">
+              <button className="modal-cancel" onClick={() => setShowEditAssignment(false)}>Cancel</button>
+              <button className="modal-confirm" onClick={handleUpdateAssignment}>Save</button>
             </div>
           </div>
         </div>
