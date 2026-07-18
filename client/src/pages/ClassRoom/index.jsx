@@ -27,8 +27,6 @@ export default function ClassRoom() {
   const [newTotalMarks, setNewTotalMarks] = useState(100)
   const [givingMarks, setGivingMarks] = useState({})
   const [marksInput, setMarksInput] = useState({})
-  const [editFiles, setEditFiles] = useState([])
-  const editFileInputRef = useRef()
 
   // Edit assignment state
   const [showEditAssignment, setShowEditAssignment] = useState(false)
@@ -101,28 +99,21 @@ export default function ClassRoom() {
     setEditDesc(a.description || '')
     setEditDeadline(new Date(a.deadline).toISOString().slice(0, 16))
     setEditTotalMarks(a.totalMarks || 100)
-    setEditFiles([])
     setShowEditAssignment(true)
   }
 
   const handleUpdateAssignment = async () => {
     if (!editTitle.trim() || !editDeadline) return
     try {
-      const formData = new FormData()
-      formData.append('title', editTitle)
-      formData.append('description', editDesc)
-      formData.append('deadline', editDeadline)
-      formData.append('totalMarks', editTotalMarks)
-      editFiles.forEach(file => {
-        formData.append('files', file)
-      })
-      const { data } = await API.put(`/assignments/${editingId}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      const { data } = await API.put(`/assignments/${editingId}`, {
+        title: editTitle,
+        description: editDesc,
+        deadline: editDeadline,
+        totalMarks: editTotalMarks
       })
       setAssignments(prev => prev.map(a => a._id === editingId ? data : a))
       setShowEditAssignment(false)
       setEditingId(null)
-      setEditFiles([])
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to update assignment.')
     }
@@ -213,20 +204,6 @@ export default function ClassRoom() {
     setNewFiles(prev => prev.filter((_, i) => i !== index))
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
-    }
-  }
-
-  const handleEditFileChange = (e) => {
-    if (e.target.files) {
-      const filesArray = Array.from(e.target.files)
-      setEditFiles(prev => [...prev, ...filesArray])
-    }
-  }
-
-  const removeEditFile = (index) => {
-    setEditFiles(prev => prev.filter((_, i) => i !== index))
-    if (editFileInputRef.current) {
-      editFileInputRef.current.value = ''
     }
   }
 
@@ -607,43 +584,6 @@ export default function ClassRoom() {
               value={editTotalMarks}
               onChange={e => setEditTotalMarks(Math.min(100, Math.max(1, Number(e.target.value))))}
             />
-
-            <div className="file-upload-area">
-              <label className="file-upload-label" htmlFor="edit-assignment-files">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z" />
-                </svg>
-                Attach more files (optional)
-              </label>
-              <input
-                id="edit-assignment-files"
-                type="file"
-                multiple
-                accept=".pdf,.doc,.docx,.xlsx,.xls,.zip,.rar,.pptx,.jpg,.jpeg,.png,.gif,.txt,.csv"
-                ref={editFileInputRef}
-                onChange={handleEditFileChange}
-                style={{ display: 'none' }}
-              />
-              {editFiles.length > 0 && (
-                <div className="selected-files">
-                  {editFiles.map((file, index) => (
-                    <div key={index} className="selected-file">
-                      <span className="file-name">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="#1a73e8">
-                          <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
-                        </svg>
-                        {file.name} ({formatFileSize(file.size)})
-                      </span>
-                      <button className="remove-file" onClick={() => removeEditFile(index)}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
 
             <div className="modal-actions">
               <button className="modal-cancel" onClick={() => setShowEditAssignment(false)}>Cancel</button>
