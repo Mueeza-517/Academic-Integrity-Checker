@@ -4,8 +4,9 @@ import Home from './pages/Home'
 import Login from './pages/Login'
 import ClassRoom from './pages/ClassRoom'
 import JoinClass from './pages/JoinClass'
-import AssignmentDetail from './pages/AssignmentDetail'
 import AllClasses from './pages/AllClasses'
+import Assignments from './pages/Assignments'
+
 
 export default function App() {
   return (
@@ -17,7 +18,7 @@ export default function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/classes" element={<AllClasses />} />
           <Route path="/class/:classId" element={<ClassRoom />} />
-          <Route path="/class/:classId/assignment/:assignmentId" element={<AssignmentDetail />} />
+          <Route path="/assignments" element={<Assignments />} />
           <Route path="/join" element={<JoinClass />} />
         </Route>
       </Routes>
