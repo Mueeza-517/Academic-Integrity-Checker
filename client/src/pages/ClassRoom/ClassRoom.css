@@ -501,8 +501,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .modal {
@@ -519,8 +524,15 @@
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal h2 {
@@ -794,8 +806,13 @@
     border-radius: 12px;
   }
 
-  .banner-info h1 { font-size: 22px; }
-  .banner-info p { font-size: 14px; }
+  .banner-info h1 {
+    font-size: 22px;
+  }
+
+  .banner-info p {
+    font-size: 14px;
+  }
 
   .classroom-tabs {
     padding: 4px;
@@ -834,7 +851,9 @@
     align-items: flex-start;
   }
 
-  .file-name { max-width: 200px; }
+  .file-name {
+    max-width: 200px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -850,7 +869,9 @@
     font-size: 11px;
   }
 
-  .back-btn span { display: none; }
+  .back-btn span {
+    display: none;
+  }
 
   .class-banner {
     height: 120px;
@@ -858,10 +879,17 @@
     border-radius: 10px;
   }
 
-  .class-banner::after { border-radius: 10px; }
+  .class-banner::after {
+    border-radius: 10px;
+  }
 
-  .banner-info h1 { font-size: 18px; }
-  .banner-info p { font-size: 13px; }
+  .banner-info h1 {
+    font-size: 18px;
+  }
+
+  .banner-info p {
+    font-size: 13px;
+  }
 
   .classroom-tabs {
     padding: 4px;
@@ -874,7 +902,9 @@
     max-width: 100px;
   }
 
-  .assignment-card { padding: 12px; }
+  .assignment-card {
+    padding: 12px;
+  }
 
   .modal {
     padding: 20px;
@@ -886,7 +916,9 @@
     justify-content: center;
   }
 
-  .file-name { max-width: 150px; }
+  .file-name {
+    max-width: 150px;
+  }
 
   .files-list {
     flex-direction: column;
@@ -912,7 +944,7 @@
 
 .ac-title {
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 900;
   color: #202124;
   margin: 0 0 6px;
 }
@@ -925,10 +957,17 @@
   color: #5f6368;
 }
 
-.ac-deadline.active { color: #5f6368; }
-.ac-deadline.past { color: #c5221f; }
+.ac-deadline.active {
+  color: #5f6368;
+}
 
-.ac-meta-divider { color: #dadce0; }
+.ac-deadline.past {
+  color: #c5221f;
+}
+
+.ac-meta-divider {
+  color: #dadce0;
+}
 
 .ac-marks {
   font-weight: 500;
@@ -950,13 +989,15 @@
   border: none;
   border-radius: 8px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 400;
   cursor: pointer;
   font-family: inherit;
   transition: background 0.15s;
 }
 
-.ac-action-btn:hover { background: #1547b8; }
+.ac-action-btn:hover {
+  background: #1547b8;
+}
 
 .ac-divider {
   height: 1px;
@@ -965,8 +1006,8 @@
 }
 
 .ac-section-label {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 900;
   color: #202124;
   margin: 0 0 10px;
 }
@@ -1007,16 +1048,99 @@
   color: #fff;
   border-radius: 7px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 400;
   text-decoration: none;
   transition: background 0.15s;
 }
 
-.ac-download-btn:hover { background: #1547b8; }
+.ac-download-btn:hover {
+  background: #1547b8;
+}
 
 .ac-description {
   font-size: 14px;
   color: #3c4043;
   line-height: 1.6;
   margin: 0;
+}
+
+.submitted-full {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.submitted-file-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.submitted-filename {
+  font-size: 13px;
+  color: #000;
+  font-weight: 500;
+}
+
+.submitted-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sub-download-btn,
+.sub-resubmit-btn,
+.sub-delete-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #3443eb;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 400;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+  text-decoration: none;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sub-download-btn:hover,
+.sub-resubmit-btn:hover,
+.sub-delete-btn:hover {
+  background: #2535d4;
+}
+
+.teacher-file-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #3443eb;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 400;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+  text-decoration: none;
+  max-width: none;
+  overflow: visible;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.teacher-file-btn:hover {
+  background: #2535d4;
 }

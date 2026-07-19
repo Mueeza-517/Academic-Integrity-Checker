@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import ConfirmModal from '../../components/ConfirmModal'
 import API from '../../api'
 import './ClassRoom.css'
 
@@ -27,6 +28,7 @@ export default function ClassRoom() {
   const [newTotalMarks, setNewTotalMarks] = useState(100)
   const [givingMarks, setGivingMarks] = useState({})
   const [marksInput, setMarksInput] = useState({})
+  const [confirm, setConfirm] = useState(null)
 
   // Edit assignment state
   const [showEditAssignment, setShowEditAssignment] = useState(false)
@@ -119,14 +121,40 @@ export default function ClassRoom() {
     }
   }
 
-  const handleDeleteAssignment = async (assignmentId) => {
-    if (!window.confirm('Delete this assignment? This cannot be undone.')) return
-    try {
-      await API.delete(`/assignments/${assignmentId}`)
-      setAssignments(prev => prev.filter(a => a._id !== assignmentId))
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete assignment.')
-    }
+  const handleDeleteAssignment = (assignmentId) => {
+    setConfirm({
+      title: 'Delete Assignment',
+      message: 'Are you sure you want to delete this assignment? All submissions will be lost.',
+      confirmText: 'Delete',
+      confirmColor: '#c5221f',
+      onConfirm: async () => {
+        try {
+          await API.delete(`/assignments/${assignmentId}`)
+          setAssignments(prev => prev.filter(a => a._id !== assignmentId))
+        } catch (err) {
+          alert('Failed to delete assignment.')
+        }
+        setConfirm(null)
+      }
+    })
+  }
+
+  const handleDeleteSubmission = async (assignmentId) => {
+    setConfirm({
+      title: 'Remove Submission',
+      message: 'Are you sure you want to remove your submission? You can resubmit before the deadline.',
+      confirmText: 'Remove',
+      confirmColor: '#c5221f',
+      onConfirm: async () => {
+        try {
+          const { data } = await API.delete(`/assignments/${assignmentId}/submit`)
+          setAssignments(prev => prev.map(a => a._id === assignmentId ? data : a))
+        } catch (err) {
+          alert(err.response?.data?.message || 'Failed to remove submission.')
+        }
+        setConfirm(null)
+      }
+    })
   }
 
   const handleSubmit = async (assignmentId, file) => {
@@ -337,7 +365,28 @@ export default function ClassRoom() {
                                   </svg>
                                   <span className="ac-file-name">{file.name}</span>
                                 </div>
-                                <a href={file.url} target="_blank" rel="noopener noreferrer" className="ac-download-btn">
+                                <a
+                                  href={`http://localhost:5000${file.url}`}
+                                  download={file.name}
+                                  onClick={async (e) => {
+                                    e.preventDefault()
+                                    try {
+                                      const response = await fetch(`http://localhost:5000${file.url}`)
+                                      const blob = await response.blob()
+                                      const url = window.URL.createObjectURL(blob)
+                                      const a = document.createElement('a')
+                                      a.href = url
+                                      a.download = file.name
+                                      document.body.appendChild(a)
+                                      a.click()
+                                      window.URL.revokeObjectURL(url)
+                                      document.body.removeChild(a)
+                                    } catch (err) {
+                                      alert('Failed to download file.')
+                                    }
+                                  }}
+                                  className="ac-download-btn"
+                                >
                                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
                                   </svg>
@@ -358,52 +407,105 @@ export default function ClassRoom() {
                         </>
                       )}
 
-                      {/* Student: submit area */}
+
                       {user?.role === 'student' && (
                         <>
                           <div className="ac-divider" />
                           <div className="submit-area">
-                            <label className={`file-label ${isPastDeadline(a.deadline) ? 'disabled' : ''}`}>
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z" />
-                              </svg>
-                              Attach & Submit
-                              <input
-                                type="file"
-                                accept=".pdf,.doc,.docx,.xlsx,.xls,.zip,.rar,.pptx"
-                                disabled={isPastDeadline(a.deadline)}
-                                onChange={(e) => { if (e.target.files[0]) handleSubmit(a._id, e.target.files[0]) }}
-                                style={{ display: 'none' }}
-                              />
-                            </label>
-                            {mySubmission && (
-                              <div className="submitted-info">
-                                <span className="submitted-tag">
-                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#137333">
+                            {mySubmission ? (
+                              <div className="submitted-full">
+                                <div className="submitted-file-row">
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="#000">
                                     <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                                   </svg>
-                                  {mySubmission.fileName}
-                                </span>
-                                {mySubmission.marks !== null && mySubmission.marks !== undefined && (
-                                  <span className="marks-tag">
-                                    Marks: {mySubmission.marks}/{a.totalMarks}
+                                  <span className="submitted-filename">{mySubmission.fileName}</span>
+                                  {mySubmission.marks !== null && mySubmission.marks !== undefined && (
+                                    <span className="marks-tag">
+                                      Marks: {mySubmission.marks}/{a.totalMarks}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="submitted-actions">
+                                  <button
+                                    className="sub-download-btn"
+                                    onClick={async () => {
+                                      try {
+                                        const filePath = mySubmission.filePath.replace(/\\/g, '/').split('uploads/')[1]
+                                        const response = await fetch(`http://localhost:5000/uploads/${filePath}`)
+                                        const blob = await response.blob()
+                                        const url = window.URL.createObjectURL(blob)
+                                        const link = document.createElement('a')
+                                        link.href = url
+                                        link.download = mySubmission.fileName
+                                        document.body.appendChild(link)
+                                        link.click()
+                                        window.URL.revokeObjectURL(url)
+                                        document.body.removeChild(link)
+                                      } catch {
+                                        alert('Failed to download.')
+                                      }
+                                    }}
+                                  >
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                      <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                                    </svg>
+                                    Download
+                                  </button>
+                                  {!isPastDeadline(a.deadline) && (
+                                    <>
+                                      <label className="sub-resubmit-btn">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                          <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+                                        </svg>
+                                        Resubmit
+                                        <input
+                                          type="file"
+                                          accept=".pdf,.doc,.docx,.xlsx,.xls,.zip,.rar,.pptx"
+                                          onChange={(e) => { if (e.target.files[0]) handleSubmit(a._id, e.target.files[0]) }}
+                                          style={{ display: 'none' }}
+                                        />
+                                      </label>
+                                      <button
+                                        className="sub-delete-btn"
+                                        onClick={() => handleDeleteSubmission(a._id)}
+                                      >
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                          <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                                        </svg>
+                                        Remove
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                <label className={`file-label ${isPastDeadline(a.deadline) ? 'disabled' : ''}`}>
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z" />
+                                  </svg>
+                                  Attach & Submit
+                                  <input
+                                    type="file"
+                                    accept=".pdf,.doc,.docx,.xlsx,.xls,.zip,.rar,.pptx"
+                                    disabled={isPastDeadline(a.deadline)}
+                                    onChange={(e) => { if (e.target.files[0]) handleSubmit(a._id, e.target.files[0]) }}
+                                    style={{ display: 'none' }}
+                                  />
+                                </label>
+                                {isPastDeadline(a.deadline) && (
+                                  <span className="error-msg">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#c5221f">
+                                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                                    </svg>
+                                    Submission time is over
                                   </span>
                                 )}
-                              </div>
-                            )}
-                            {isPastDeadline(a.deadline) && !mySubmission && (
-                              <span className="error-msg">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="#c5221f">
-                                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                                </svg>
-                                Submission time is over
-                              </span>
+                              </>
                             )}
                           </div>
                         </>
                       )}
-
-                      {/* Teacher: submissions/marks list */}
                       {user?.role === 'teacher' && a.submissions?.length > 0 && (
                         <>
                           <div className="ac-divider" />
@@ -414,6 +516,31 @@ export default function ClassRoom() {
                             {a.submissions.map((s, i) => (
                               <div key={i} className="marks-row">
                                 <span className="marks-student">{s.studentName}</span>
+                                <button
+                                  className="teacher-file-btn"
+                                  onClick={async () => {
+                                    try {
+                                      const filePath = s.filePath.replace(/\\/g, '/').split('uploads/')[1]
+                                      const response = await fetch(`http://localhost:5000/uploads/${filePath}`)
+                                      const blob = await response.blob()
+                                      const url = window.URL.createObjectURL(blob)
+                                      const link = document.createElement('a')
+                                      link.href = url
+                                      link.download = s.fileName
+                                      document.body.appendChild(link)
+                                      link.click()
+                                      window.URL.revokeObjectURL(url)
+                                      document.body.removeChild(link)
+                                    } catch {
+                                      alert('Failed to download.')
+                                    }
+                                  }}
+                                >
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                                  </svg>
+                                  {s.fileName}
+                                </button>
                                 {s.marks !== null && s.marks !== undefined ? (
                                   <span className="marks-given">{s.marks}/{a.totalMarks}</span>
                                 ) : (
@@ -429,6 +556,7 @@ export default function ClassRoom() {
                                         ...prev,
                                         [`${a._id}_${s.studentEmail}`]: e.target.value
                                       }))}
+                                      onClick={e => e.stopPropagation()}
                                     />
                                     <button
                                       className="marks-save-btn"
@@ -615,6 +743,16 @@ export default function ClassRoom() {
             </div>
           </div>
         </div>
+      )}
+      {confirm && (
+        <ConfirmModal
+          title={confirm.title}
+          message={confirm.message}
+          confirmText={confirm.confirmText}
+          confirmColor={confirm.confirmColor}
+          onConfirm={confirm.onConfirm}
+          onCancel={() => setConfirm(null)}
+        />
       )}
     </div>
   )

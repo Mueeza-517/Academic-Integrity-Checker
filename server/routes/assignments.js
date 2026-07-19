@@ -109,6 +109,27 @@ router.put('/:id', auth, uploadAssignment.array('files'), async (req, res) => {
   }
 })
 
+// Delete student submission
+router.delete('/:assignmentId/submit', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'student') {
+      return res.status(403).json({ message: 'Only students can delete their submission' })
+    }
+    const assignment = await Assignment.findById(req.params.assignmentId)
+    if (!assignment) return res.status(404).json({ message: 'Assignment not found' })
+
+    if (new Date() > new Date(assignment.deadline)) {
+      return res.status(400).json({ message: 'Cannot delete submission after deadline.' })
+    }
+
+    assignment.submissions = assignment.submissions.filter(s => s.studentEmail !== req.user.email)
+    await assignment.save()
+    res.json(assignment)
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message })
+  }
+})
+
 // Delete assignment (teacher only)
 router.delete('/:id', auth, async (req, res) => {
   try {
