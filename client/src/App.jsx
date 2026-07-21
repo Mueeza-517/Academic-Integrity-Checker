@@ -6,6 +6,7 @@ import ClassRoom from './pages/ClassRoom'
 import JoinClass from './pages/JoinClass'
 import AllClasses from './pages/AllClasses'
 import Assignments from './pages/Assignments'
+import Submissions from './pages/Submissions'
 
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="/classes" element={<AllClasses />} />
           <Route path="/class/:classId" element={<ClassRoom />} />
           <Route path="/assignments" element={<Assignments />} />
+          <Route path="/submissions" element={<Submissions />} />
           <Route path="/join" element={<JoinClass />} />
         </Route>
       </Routes>
