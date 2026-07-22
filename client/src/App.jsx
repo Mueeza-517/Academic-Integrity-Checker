@@ -7,6 +7,9 @@ import JoinClass from './pages/JoinClass'
 import AllClasses from './pages/AllClasses'
 import Assignments from './pages/Assignments'
 import Submissions from './pages/Submissions'
+import Profile from './pages/Profile'
+import Settings from './pages/Settings'
+
 
 
 export default function App() {
@@ -22,6 +25,8 @@ export default function App() {
           <Route path="/assignments" element={<Assignments />} />
           <Route path="/submissions" element={<Submissions />} />
           <Route path="/join" element={<JoinClass />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
         </Route>
       </Routes>
     </BrowserRouter>

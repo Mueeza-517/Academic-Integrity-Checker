@@ -14,10 +14,7 @@ const NAV_ITEMS = [
   { label: 'My Classes', path: '/classes', icon: faChalkboardUser },
   { label: 'Assignments', path: '/assignments', icon: faFileLines },
   { label: 'Submissions', path: '/submissions', icon: faClipboardCheck },
-  { label: 'Calendar', path: '/calendar', icon: faCalendarDays },
-  { label: 'Announcements', path: '/announcements', icon: faBullhorn },
   { label: 'Profile', path: '/profile', icon: faUser },
-  { label: 'Settings', path: '/settings', icon: faGear },
 ]
 
 export default function Sidebar({ user, onLogout }) {
