@@ -5,6 +5,7 @@ const auth = require('../middleware/auth')
 const multer = require('multer')
 const path = require('path')
 const fs = require('fs')
+const { checkPlagiarism } = require('../utils/plagiarism')
 
 
 // Multer storage for student submissions
@@ -211,6 +212,7 @@ router.get('/:assignmentId/plagcheck', auth, async (req, res) => {
     if (req.user.role !== 'teacher') {
       return res.status(403).json({ message: 'Only teachers can check plagiarism' })
     }
+
     const assignment = await Assignment.findById(req.params.assignmentId)
     if (!assignment) return res.status(404).json({ message: 'Assignment not found' })
 
@@ -218,17 +220,10 @@ router.get('/:assignmentId/plagcheck', auth, async (req, res) => {
       return res.json({ pairs: [], message: 'Need at least 2 submissions to check plagiarism.' })
     }
 
-    const pairs = []
-    for (let i = 0; i < assignment.submissions.length; i++) {
-      for (let j = i + 1; j < assignment.submissions.length; j++) {
-        const s1 = assignment.submissions[i]
-        const s2 = assignment.submissions[j]
-        const similarity = s1.fileName === s2.fileName ? '95%' : `${Math.floor(Math.random() * 30 + 10)}%`
-        pairs.push({ student1: s1.studentName, student2: s2.studentName, similarity })
-      }
-    }
-    res.json({ pairs })
+    const result = await checkPlagiarism(assignment.submissions)
+    res.json(result)
   } catch (err) {
+    console.error('Plagiarism check error:', err)
     res.status(500).json({ message: 'Server error', error: err.message })
   }
 })

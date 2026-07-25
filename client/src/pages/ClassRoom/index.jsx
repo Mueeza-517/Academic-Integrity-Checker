@@ -576,19 +576,29 @@ export default function ClassRoom() {
                         <div className="plag-result">
                           <strong>Plagiarism Report</strong>
                           {plagResult.message && <p>{plagResult.message}</p>}
-                          {plagResult.pairs?.length > 0
-                            ? plagResult.pairs.map((p, i) => (
-                              <div key={i} className="plag-pair">
+                          {plagResult.pairs?.length > 0 ? (
+                            plagResult.pairs.map((p, i) => (
+                              <div key={i} className={`plag-pair ${p.level}`}>
                                 <div className="plag-pair-names">
-                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#e65100">
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
                                   </svg>
-                                  {p.student1} & {p.student2}
+                                  <div>
+                                    <span>{p.student1} & {p.student2}</span>
+                                    <span className="plag-files">{p.file1} · {p.file2}</span>
+                                  </div>
                                 </div>
-                                <span className="similarity">{p.similarity} similarity</span>
+                                <span className={`plag-similarity ${p.level}`}>{p.similarity}</span>
                               </div>
                             ))
-                            : !plagResult.message && <p>No plagiarism detected.</p>}
+                          ) : !plagResult.message && (
+                            <p className="plag-clean">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="#137333">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                              </svg>
+                              No plagiarism detected.
+                            </p>
+                          )}
                           <button className="close-plag" onClick={() => setActivePlagId(null)}>Close</button>
                         </div>
                       )}

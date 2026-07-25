@@ -1144,3 +1144,26 @@
 .teacher-file-btn:hover {
   background: #2535d4;
 }
+
+.plag-pair.high { background: #fce8e6; }
+.plag-pair.medium { background: #fff8e1; }
+.plag-pair.low { background: #e8f5e9; }
+
+.plag-files {
+  display: block;
+  font-size: 11px;
+  color: #5f6368;
+  margin-top: 2px;
+}
+
+.plag-similarity.high { color: #c5221f; font-weight: 700; }
+.plag-similarity.medium { color: #f9a825; font-weight: 700; }
+.plag-similarity.low { color: #137333; font-weight: 700; }
+
+.plag-clean {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #137333;
+  font-size: 14px;
+}
