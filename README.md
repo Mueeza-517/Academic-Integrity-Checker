@@ -52,4 +52,3 @@ A full-stack classroom management platform that helps teachers create classes, m
 - `adm-zip` — ZIP archive text extraction
 - `natural` — text similarity (n-gram / Jaccard comparison)
 
-## Project Structure
