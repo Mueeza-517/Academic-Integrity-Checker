@@ -979,6 +979,69 @@
   flex-wrap: wrap;
 }
 
+.plag-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.plag-summary {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.plag-sum {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+
+.plag-sum.high { background: #fce8e6; color: #c5221f; }
+.plag-sum.medium { background: #fff8e1; color: #f9a825; }
+.plag-sum.low { background: #e8f5e9; color: #137333; }
+
+.plag-students {
+  font-weight: 600;
+  font-size: 14px;
+  color: #202124;
+  display: block;
+}
+
+.plag-files {
+  display: block;
+  font-size: 11px;
+  color: #5f6368;
+  margin-top: 2px;
+}
+
+.plag-details {
+  display: block;
+  font-size: 11px;
+  color: #3443eb;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.plag-pair.high { background: #fce8e6; border-left: 3px solid #c5221f; }
+.plag-pair.medium { background: #fff8e1; border-left: 3px solid #f9a825; }
+.plag-pair.low { background: #e8f5e9; border-left: 3px solid #137333; }
+
+.plag-similarity.high { color: #c5221f; font-weight: 700; font-size: 16px; }
+.plag-similarity.medium { color: #f9a825; font-weight: 700; font-size: 16px; }
+.plag-similarity.low { color: #137333; font-weight: 700; font-size: 16px; }
+
+.plag-clean {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #137333;
+  font-size: 14px;
+}
+
 .ac-action-btn {
   display: flex;
   align-items: center;

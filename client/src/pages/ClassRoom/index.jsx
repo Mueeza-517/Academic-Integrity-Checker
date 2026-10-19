@@ -574,8 +574,19 @@ export default function ClassRoom() {
 
                       {activePlagId === a._id && plagResult?.id === a._id && (
                         <div className="plag-result">
-                          <strong>Plagiarism Report</strong>
+                          <div className="plag-result-header">
+                            <strong>Plagiarism Report</strong>
+                            {plagResult.summary && (
+                              <div className="plag-summary">
+                                <span className="plag-sum high">🔴 High: {plagResult.summary.high}</span>
+                                <span className="plag-sum medium">🟡 Medium: {plagResult.summary.medium}</span>
+                                <span className="plag-sum low">🟢 Low: {plagResult.summary.low}</span>
+                              </div>
+                            )}
+                          </div>
+
                           {plagResult.message && <p>{plagResult.message}</p>}
+
                           {plagResult.pairs?.length > 0 ? (
                             plagResult.pairs.map((p, i) => (
                               <div key={i} className={`plag-pair ${p.level}`}>
@@ -584,8 +595,9 @@ export default function ClassRoom() {
                                     <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
                                   </svg>
                                   <div>
-                                    <span>{p.student1} & {p.student2}</span>
+                                    <span className="plag-students">{p.student1} & {p.student2}</span>
                                     <span className="plag-files">{p.file1} · {p.file2}</span>
+                                    {p.details && <span className="plag-details">{p.details}</span>}
                                   </div>
                                 </div>
                                 <span className={`plag-similarity ${p.level}`}>{p.similarity}</span>
